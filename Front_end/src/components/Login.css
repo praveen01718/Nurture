@@ -1,0 +1,153 @@
+body {
+  min-height: 100%;
+  background-image:
+    linear-gradient(rgb(66,120,130, 0.8)),
+    url('src/Images/hero-banner-img.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+}
+
+.custom-navbar {
+  opacity: 90%;
+  background-color: rgb(66,120,130, 0.8) !important;
+  border: 1px solid rgb(66,120,130, 0.8);
+  box-shadow: 0px 0px 15px 0px rgba(1, 41, 112, 0.1); 
+  border-bottom: #fff 1px solid;
+}
+
+.get-button{
+  background-color: #00B4DC;
+  border-radius: 0.5rem;
+  border-color: #00B4DC;
+  width: auto;
+}
+
+.brand-logo {
+  height: auto;
+  width: 190px;
+  padding: 7px 14px 7px 7px;
+  border-radius: 100px;
+  background-color: #fff;
+  margin-top: 20px;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: 50%;
+  gap: 0.4rem;
+}
+
+.nav-links .nav-link {
+  color: #fff !important;
+  margin-right: 10px;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.nav-links .nav-link:hover,
+.nav-links .nav-link:focus,
+.nav-links .nav-link.active {
+  color: #0c5485 !important;
+}
+
+.custom-navbar .navbar-collapse {
+  justify-content: flex-start;
+}
+
+.login-dropdown > .nav-link {
+  color: #fff !important;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+  padding: 2rem 1rem;
+  color: #fff;
+  font-family: 'Nunto', sans-serif;
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: 'Nunito', sans-serif;
+} 
+
+.hero-content button {
+  border: 0;
+  background-color: #00B4DC;
+  color: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: .6rem 1.25rem;
+  cursor: pointer;
+  transition: background-color .2s ease, transform .15s ease;
+}
+
+.hero-content button:hover {
+  background-color: #00B4DCcc;
+  transform: translateY(-1px);
+}   
+
+.hero-grid {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.8rem;
+}
+
+.hero-card {
+  border-radius: 12px;
+  padding: 1rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-card-image {
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  border: #fff 6px solid;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+}
+
+.hero-card-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.hero-card h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: rgba(255, 111, 154, 0.3);
+  color: #fff;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 111, 154, 0.5);
+  padding: 0.2rem 0.6rem;
+}
+

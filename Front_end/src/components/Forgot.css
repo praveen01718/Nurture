@@ -1,0 +1,120 @@
+.forgot-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #fff;
+}
+
+.forgot-header {
+    width: 100%;
+    padding: 20px;
+}
+
+.forgot-logo {
+    margin-top: 20px;
+    height: 50px;
+    margin-left: 43%;
+}
+
+.forgot-card {
+    display: flex;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 800px;
+    margin-top: 50px;
+}
+
+.forgot-img img {
+    width: 400px;
+    height: 100%;
+    object-fit: cover;
+}
+
+.forgot-content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #fff;
+}
+
+.forgot-content h2{
+    color: #ff6f9a;
+}
+
+.input-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.reset-btn {
+    background-color: #00B4DCcc;
+    color: white;
+}
+
+.back-btn {
+    background-color: transparent;
+}
+
+.back-to-login {
+    text-decoration: none;
+    color: #00B4DCcc;
+}
+
+.reset-password {
+    text-decoration: none;
+    color: #fff;
+}
+
+.error-msg {
+    color: #ff4d4d; 
+    margin-top: -5%;
+}
+
+.resend-container {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.resend-link {
+  background: none;
+  border: none;
+  color: #00B4DCcc;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.resend-link:disabled {
+  color: #999;
+  text-decoration: none;
+  cursor: not-allowed;
+}
