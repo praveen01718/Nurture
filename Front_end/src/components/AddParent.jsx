@@ -202,7 +202,7 @@ function AddParent() {
         </div>
         <nav className="sidebar-links">
           <Link to="/Home/dashboard" className="nav-link"><FaHome/> <span>Dashboard</span></Link>
-          <Link to="/Home/parents" className="nav-link active"><FaUserFriends /> <span>Parents</span></Link>
+          <Link to="/Home/parent" className="nav-link active"><FaUserFriends /> <span>Parents</span></Link>
           <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
           <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
           <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
