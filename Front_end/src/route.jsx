@@ -4,6 +4,8 @@ import Login from './components/Login'
 import Hospital from './components/Hospital'
 import Forgot from './components/Forgot'
 import ResetPassword from './components/ResetPassword'
+import ParentList from './components/ParentList'
+import AddParent from './components/AddParent'
 
 
 const route = () => {
@@ -14,6 +16,8 @@ const route = () => {
         <Route path='/login/Hospital Admin' element={<Hospital />} />
         <Route path='/login/Hospital Admin/forgot-password' element={<Forgot/>} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/Home/Parent" element={<ParentList />} />
+        <Route path="/Home/Parents/Add_parent" element={<AddParent/>} />
       </Routes>
     </BrowserRouter>
   )

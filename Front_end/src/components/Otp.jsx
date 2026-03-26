@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Otp.css';
 
-const OtpModal = ({ isOpen, onClose, onVerify }) => {
+const OtpModal = ({ isOpen, onClose, onVerify, email }) => {
   const [otp, setOtp] = useState(new Array(4).fill(""));
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [timerActive, setTimerActive] = useState(0); 
+  const [timerActive, setTimerActive] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
   const inputRefs = useRef([]);
 
   useEffect(() => {
@@ -27,7 +30,7 @@ const OtpModal = ({ isOpen, onClose, onVerify }) => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isOpen, timerActive]); 
+  }, [isOpen, timerActive]);
 
   if (!isOpen) return null;
 
@@ -61,21 +64,41 @@ const OtpModal = ({ isOpen, onClose, onVerify }) => {
       if (index < 4) newOtp[index] = char;
     });
     setOtp(newOtp);
-    
+
     const nextIndex = data.length < 4 ? data.length : 3;
-    inputRefs.current[nextIndex].focus();
-    
+    inputRefs.current[nextIndex]?.focus();
+
     if (data.length === 4) onVerify(data);
   };
 
-  const handleResend = () => {
-    setOtp(new Array(4).fill(""));
-    setTimer(60);
-    setCanResend(false);
-    setTimerActive(prev => prev + 1); 
-    inputRefs.current[0]?.focus();
-    console.log("OTP Resent");
-  };
+  const handleResend = async () => {
+    setLoading(true);
+    setMessage(""); 
+    
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/validate-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtp(new Array(4).fill(""));
+        setTimer(60);
+        setCanResend(false);
+        setTimerActive(prev => prev + 1);
+        inputRefs.current[0]?.focus();
+      } else {
+        setMessage(data.message || "Failed to resend OTP");
+      }
+    } catch (err) {
+      setMessage("Server connection failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }; 
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -84,7 +107,9 @@ const OtpModal = ({ isOpen, onClose, onVerify }) => {
           <h2>Enter OTP</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
-        
+
+        {message && <p className="status-message">{message}</p>}
+
         <div className="otp-inputs">
           {otp.map((data, i) => (
             <input
@@ -96,23 +121,28 @@ const OtpModal = ({ isOpen, onClose, onVerify }) => {
               onChange={(e) => handleChange(e, i)}
               onKeyDown={(e) => handleKeyDown(e, i)}
               onPaste={handlePaste}
+              className="otp-field"
             />
           ))}
         </div>
-
+        
         <div className="timer-section">
           {canResend ? (
-            <button className="resend-link" onClick={handleResend}>
-              Resend OTP
+            <button 
+              className="resend-link" 
+              onClick={handleResend} 
+              disabled={loading}
+            >
+              {loading ? "Sending..." : "Resend OTP"}
             </button>
           ) : (
-            <p>00:<span>{timer}</span></p>
+            <p>00:<span>{timer < 10 ? `0${timer}` : timer}</span></p>
           )}
         </div>
 
-        <button 
-          className="verify-btn" 
-          disabled={otp.join("").length !== 4}
+        <button
+          className="verify-btn"
+          disabled={otp.join("").length !== 4 || loading}
           onClick={() => onVerify(otp.join(""))}
         >
           Verify

@@ -27,8 +27,8 @@ const OtpModal = ({ isOpen, onClose, onVerify, email }) => {
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} 
                     placeholder="0000"
                     style={{
+                        textAlign:'center',
                         letterSpacing: '10px',
-                        textAlign: 'center',
                         fontSize: '24px',
                         padding: '10px',
                         width: '150px',

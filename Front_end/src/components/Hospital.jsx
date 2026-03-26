@@ -41,7 +41,7 @@ function Hospital() {
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
-          navigate("/Home"); 
+          navigate("/Home/Parent"); 
         }, 1500);
       } else {
         if (data.type === "email") setUsernameError(data.message);

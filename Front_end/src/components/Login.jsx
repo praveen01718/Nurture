@@ -26,18 +26,16 @@ const Login = () => {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
-            <Nav className='me-auto nav-links'>
+            <Nav className='me-auto Nav-links'>
               <Nav.Link href='/Home'>Home</Nav.Link>
               <Nav.Link href='/Parents'>Parents</Nav.Link>
               <Nav.Link href='/Clinics'>Clinics</Nav.Link>
               <Nav.Link href='/Request a Demo'>Request a Demo</Nav.Link>
-              <button className='get-button'>
               <NavDropdown title='Login' id='login-nav-dropdown' className='login-dropdown'>
                 <NavDropdown.Item href='/login/Physician'>Physician</NavDropdown.Item>
                 <NavDropdown.Item href='/login/Super Admin'>Super Admin</NavDropdown.Item>
                 <NavDropdown.Item href='/login/Hospital Admin'>Hospital Admin</NavDropdown.Item>
               </NavDropdown>
-              </button>
             </Nav>
           </Navbar.Collapse>
         </Container>

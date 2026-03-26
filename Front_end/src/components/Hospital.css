@@ -187,13 +187,6 @@
   }
 }
 
-.custom-alert.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-
 .page-cover {
   width: 100%;
   min-height: 100vh;
@@ -216,17 +209,26 @@
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.success-bg { background-color: #28a745; }
-.error-bg { background-color: #dc3545; }
+.success-bg {   
+  color: #28a745 ;
+  background-color: white;
+  border: 1px solid #28a745; 
+}
+
+.error-bg { 
+  color:#dc3545 ;
+  background-color: white;
+  border: 1px solid #dc3545; 
+}
 
 .alert-close-btn {
   position: relative;
   display: flex;
-  margin-left: 135%;
+  margin-left: 130%;
   margin-top: -16%;
   background: none;
   border: none;
-  color: white;
+  color: black;
   font-size: 22px;
   cursor: pointer;
   line-height: 1;

@@ -57,11 +57,12 @@
 }
 
 .otp-inputs input {
+  justify-content: center;
+  text-align: center;
   width: 48px;
   height: 40px;
   border: 1px solid #dcdcdc;
   border-radius: 4px;
-  text-align: center;
   font-size: 18px;
   outline: none;
   transition: 0.2s;
@@ -91,6 +92,7 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  text-decoration: none;
 }
 
 .verify-btn {

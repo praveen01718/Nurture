@@ -24,13 +24,19 @@ body {
   width: auto;
 }
 
+.login-dropdown{
+  background-color: #00B4DC;
+  width: fit-content;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
 .brand-logo {
   height: auto;
   width: 190px;
   padding: 7px 14px 7px 7px;
   border-radius: 100px;
   background-color: #fff;
-  margin-top: 20px;
 }
 
 .brand-wrap {
@@ -39,12 +45,12 @@ body {
   text-decoration: none;
 }
 
-.nav-links {
+.Nav-links {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-left: 50%;
-  gap: 0.4rem;
+  margin-left: 62%;
+  gap: 1rem;
 }
 
 .nav-links .nav-link {

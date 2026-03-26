@@ -69,6 +69,7 @@ const Forgot = () => {
             alert("Verification failed. Please try again.");
         }
     };
+    
 
     return (
         <div className='forgot-page'>
