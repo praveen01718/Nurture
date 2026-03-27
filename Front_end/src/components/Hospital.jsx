@@ -41,7 +41,7 @@ function Hospital() {
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
-          navigate("/Home/Parent"); 
+          navigate("/Home/Dashboard"); 
         }, 1500);
       } else {
         if (data.type === "email") setUsernameError(data.message);
@@ -80,10 +80,10 @@ function Hospital() {
           </div>
           <form onSubmit={handle} className="log-details-input">
             <div className="input-box">
-              <label>Email Address</label>
+              <label>User Name</label>
               <div className="input-field">
                 <FaUser className="icon" />
-                <input type="text" placeholder="Email" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <input type="text" placeholder="User Name" value={username} onChange={(e) => setUsername(e.target.value)} />
               </div>
               {usernameError && <p className="error">{usernameError}</p>}
             </div>

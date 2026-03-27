@@ -4,11 +4,13 @@
     align-items: center;
     min-height: 100vh;
     background-color: #fff;
+    font-family: Nunito, sans-serif;
 }
 
 .forgot-header {
     width: 100%;
     padding: 20px;
+    font-family: Nunito, sans-serif;
 }
 
 .forgot-logo {
@@ -24,6 +26,7 @@
     overflow: hidden;
     max-width: 800px;
     margin-top: 50px;
+    font-family: Nunito, sans-serif;
 }
 
 .forgot-img img {
@@ -38,15 +41,18 @@
     flex-direction: column;
     justify-content: center;
     background: #fff;
+    font-family: Nunito, sans-serif;
 }
 
 .forgot-content h2{
     color: #ff6f9a;
+    font-family: Nunito, sans-serif;
 }
 
 .input-container {
     position: relative;
     margin: 20px 0;
+    font-family: Nunito, sans-serif;
 }
 
 .input-icon {
@@ -63,11 +69,13 @@
     border: 1px solid #ddd;
     border-radius: 10px;
     box-sizing: border-box;
+    font-family: Nunito, sans-serif;
 }
 
 button {
     width: 100%;
     padding: 12px;
+    font-family: Nunito, sans-serif;
     margin: 10px 0;
     border: none;
     border-radius: 10px;
@@ -104,6 +112,7 @@ button {
 }
 
 .resend-link {
+  font-family: Nunito, sans-serif;
   background: none;
   border: none;
   color: #00B4DCcc;

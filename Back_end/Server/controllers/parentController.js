@@ -3,39 +3,31 @@ const { Parent, Child, sequelize } = require('../models');
 exports.getParents = async (req, res) => {
   try {
     const parents = await Parent.findAll({
-      order: [['createdAt', 'DESC']] 
+      order: [['createdAt', 'DESC']]
     });
     res.status(200).json(parents);
   } catch (error) {
-    console.error("Error fetching parents:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
 exports.addParentWithChildren = async (req, res) => {
-  const t = await sequelize.transaction(); 
+  const t = await sequelize.transaction();
   try {
     const { parentData, children } = req.body;
-    
+
     const newParent = await Parent.create(parentData, { transaction: t });
 
     if (children && Array.isArray(children)) {
-      const cleanedChildren = children.map(child => {
-        const isPremature = child.premature === "yes";
-        
-        const weeksParsed = parseInt(child.weeksPremature, 10);
-        const finalWeeks = Number.isFinite(weeksParsed) ? weeksParsed : null;
+      const cleanedChildren = children.map(child => ({
+        ...child,
+        parentId: newParent.id,
+        expectedDeliveryDate: child.premature === "yes" ? child.expectedDeliveryDate : null,
+        weeksPremature: child.premature === "yes" ? parseInt(child.weeksPremature, 10) || 0 : null,
+        bloodGroup: child.bloodGroup || null,
+        notes: child.notes || null
+      }));
 
-        return {
-          ...child,
-          parentId: newParent.id,
-          expectedDeliveryDate: (isPremature && child.expectedDeliveryDate) ? child.expectedDeliveryDate : null,
-          weeksPremature: isPremature ? finalWeeks : null,
-          bloodGroup: child.bloodGroup || null,
-          notes: child.notes || null
-        };
-      });
-      
       await Child.bulkCreate(cleanedChildren, { transaction: t });
     }
 
@@ -43,7 +35,6 @@ exports.addParentWithChildren = async (req, res) => {
     res.status(201).json({ success: true, message: "Saved successfully!" });
   } catch (error) {
     if (t) await t.rollback();
-    console.error("Add Parent Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -51,10 +42,9 @@ exports.addParentWithChildren = async (req, res) => {
 exports.deleteParent = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Parent.destroy({ where: { id: id } });
-
+    const deleted = await Parent.destroy({ where: { id } });
     if (deleted) {
-      res.status(200).json({ success: true, message: "Parent and associated records deleted successfully!" });
+      res.status(200).json({ success: true, message: "Deleted successfully!" });
     } else {
       res.status(404).json({ success: false, message: "Record not found" });
     }
@@ -69,35 +59,27 @@ exports.updateParent = async (req, res) => {
     const { id } = req.params;
     const { parentData, children } = req.body;
 
-    await Parent.update(parentData, { where: { id: id }, transaction: t });
+    await Parent.update(parentData, { where: { id }, transaction: t });
 
     if (children && Array.isArray(children)) {
       await Child.destroy({ where: { parentId: id }, transaction: t });
-      
-      const cleanedChildren = children.map(child => {
-        const isPremature = child.premature === "yes";
-        
-        const weeksParsed = parseInt(child.weeksPremature, 10);
-        const finalWeeks = Number.isFinite(weeksParsed) ? weeksParsed : null;
 
-        return {
-          ...child,
-          parentId: id,
-          expectedDeliveryDate: (isPremature && child.expectedDeliveryDate) ? child.expectedDeliveryDate : null,
-          weeksPremature: isPremature ? finalWeeks : null,
-          bloodGroup: child.bloodGroup || null,
-          notes: child.notes || null
-        };
-      });
-      
+      const cleanedChildren = children.map(child => ({
+        ...child,
+        parentId: id,
+        expectedDeliveryDate: child.premature === "yes" ? child.expectedDeliveryDate : null,
+        weeksPremature: child.premature === "yes" ? parseInt(child.weeksPremature, 10) || 0 : null,
+        bloodGroup: child.bloodGroup || null,
+        notes: child.notes || null
+      }));
+
       await Child.bulkCreate(cleanedChildren, { transaction: t });
     }
 
     await t.commit();
-    res.status(200).json({ success: true, message: "Data updated successfully!" });
+    res.status(200).json({ success: true, message: "Updated successfully!" });
   } catch (error) {
     if (t) await t.rollback();
-    console.error("Update Parent Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -106,7 +88,7 @@ exports.getParentById = async (req, res) => {
   try {
     const { id } = req.params;
     const parent = await Parent.findByPk(id, {
-      include: [{ model: Child, as: 'children' }] 
+      include: [{ model: Child, as: 'children' }]
     });
     if (!parent) return res.status(404).json({ message: "Not found" });
     res.status(200).json(parent);

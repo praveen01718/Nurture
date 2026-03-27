@@ -12,7 +12,6 @@ body {
 .custom-navbar {
   opacity: 90%;
   background-color: rgb(66,120,130, 0.8) !important;
-  border: 1px solid rgb(66,120,130, 0.8);
   box-shadow: 0px 0px 15px 0px rgba(1, 41, 112, 0.1); 
   border-bottom: #fff 1px solid;
 }
@@ -20,12 +19,10 @@ body {
 .get-button{
   background-color: #00B4DC;
   border-radius: 0.5rem;
-  border-color: #00B4DC;
   width: auto;
 }
 
 .login-dropdown{
-  background-color: #00B4DC;
   width: fit-content;
   height: auto;
   border-radius: 0.5rem;
@@ -54,7 +51,6 @@ body {
 }
 
 .nav-links .nav-link {
-  color: #fff !important;
   margin-right: 10px;
   transition: color 0.2s ease;
   font-weight: 500;
@@ -71,6 +67,7 @@ body {
 }
 
 .login-dropdown > .nav-link {
+  background-color: #00B4DC;
   color: #fff !important;
 }
 

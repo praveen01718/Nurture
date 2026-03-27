@@ -10,6 +10,7 @@
   display: flex;
   min-height: 100vh;
   background-color: #f4f7f9;
+  font-family: Nunito, sans-serif;
 }
 
 .nurture-sidebar {
@@ -17,10 +18,12 @@
   background-color: var(--sidebar-teal);
   display: flex;
   flex-direction: column;
+  font-family: Nunito, sans-serif;
 }
 
 .sidebar-header {
   height: 60px;
+  font-family: Nunito, sans-serif;
   background: white;
   display: flex;
   align-items: center;
@@ -38,10 +41,13 @@
 }
 
 .sidebar-links { 
+  font-family: sans-serif;
   padding: 15px;
+  font-family: Nunito, sans-serif;
 }
 
 .nav-link {
+  font-family: Nunito, sans-serif;
   display: flex;
   align-items: center;
   padding: 12px 15px;
@@ -55,18 +61,20 @@
 }
 
 .nav-link.active {
+  font-family: Nunito, sans-serif;
   background-color: white;
   border: 2px solid var(--active-teal);
   border-bottom: 3px solid var(--active-teal);
-  color: var(--sidebar-teal);
+  color: var(--active-teal);
   font-weight: 600;
 }
 
-.nav-link span { margin-left: 12px; }
+.nav-link span { margin-left: 12px; font-family: Nunito, sans-serif;}
 
-.content-area { flex: 1; display: flex; flex-direction: column; }
+.content-area { flex: 1; display: flex; flex-direction: column; font-family: Nunito, sans-serif; }
 
 .top-nav {
+  font-family: Nunito, sans-serif;
   height: 60px;
   background: white;
   display: flex;
@@ -80,10 +88,17 @@
 
 .notif-box { color: var(--sidebar-teal); font-size: 20px; position: relative; }
 
+.Notifications{
+  text-decoration: none;
+  color: var(--active-teal);
+  font-size: 20px;
+}
+
 .dot {
+  font-family: Nunito, sans-serif;
   position: absolute;
   top: -5px; right: -5px;
-  background: #00B9E8;
+  background: var(--sidebar-teal);
   color: white;
   font-size: 10px;
   width: 15px; height: 15px;
@@ -91,9 +106,9 @@
   display: flex; align-items: center; justify-content: center;
 }
 
-.user-info { display: flex; align-items: center; gap: 10px; }
+.user-info { display: flex; align-items: center; gap: 10px; font-family: Nunito, sans-serif; }
 .user-avatar { border-radius: 50%; }
-.user-name { font-size: 14px; margin: 0; }
+.user-name { font-size: 14px; margin: 0; font-family: Nunito, sans-serif;}
 
 .form-main-wrapper { padding: 25px; }
 
@@ -107,8 +122,8 @@
   align-items: center;
 }
 
-.header-titles h2 { font-size: 16px; margin: 0; font-weight: 500; }
-.breadcrumb { font-size: 11px; margin: 4px 0 0 0; opacity: 0.9; }
+.header-titles h2 { font-size: 16px; margin: 0; font-weight: 500; font-family: Nunito, sans-serif;}
+.breadcrumb { font-size: 11px; margin: 4px 0 0 0; opacity: 0.9; font-family: Nunito, sans-serif; }
 
 .header-back-button {
   background: white;
@@ -149,13 +164,14 @@
 }
 
 .image-drop-box p{
+  font-family: Nunito, sans-serif;
   color: var(--header-grey);
 }
 
 .img-icon { 
   display: flex;
   margin-top: 15px;
-  margin-left: 16px;
+  margin-left: 15px;
   font-size: 50px; 
   color: white; 
   margin-bottom: 10px; 
@@ -233,6 +249,7 @@
 .field-group {
   display: flex;
   flex-direction: column;
+  font-family: Nunito, sans-serif;
 }   
 
 .field-group label {
@@ -240,11 +257,13 @@
   font-weight: 500;
   color: #333;
   margin-bottom: 6px;
+  font-family: Nunito, sans-serif;
 }
 
 .field-group input, 
 .field-group select, 
 .field-group textarea {
+  font-family: Nunito, sans-serif;
   padding: 10px 12px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -278,14 +297,30 @@
   margin-top: 4px;
 }
 
+.add-child-container{
+  font-family: sans-serif;
+}
+
 .add-child-btn-alt {
+  font-family: Nunito, sans-serif;
   background: transparent;
   width: 20%;
   border: 1.5px solid #008080;
   color: #008080;
   padding: 8px 16px;
   border-radius: 6px;
-  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.delete-child-btn{
+  font-family: Nunito, sans-serif;
+  background: transparent;
+  width: fit-content;
+  border: 1.5px solid var(--error-red);
+  color: var(--error-red);
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
   margin-top: 30px;
 }
@@ -297,6 +332,7 @@
 }
 
 .next-btn-action, .submit-btn-action, .prev-btn {
+  font-family: Nunito, sans-serif;
   padding: 10px 25px;
   border-radius: 6px;
   border: none;
@@ -317,6 +353,7 @@
 }
 
 .remove-child-btn {
+  font-family: Nunito, sans-serif;
   background: #fff5f5;
   color: #e53e3e;
   border: 1px solid #fed7d7;
@@ -336,13 +373,14 @@
   color: white;
 }
 
-.next-btn-action { background: var(--active-teal); color: white; width: fit-content; }
-.prev-btn { background: #004d4d; color: white; }
-.submit-btn-action { background: #00c292; color: white; }
+.next-btn-action { background: var(--active-teal); color: white; width: fit-content; font-family: Nunito, sans-serif;}
+.prev-btn { background: #004d4d; color: white;font-family: Nunito, sans-serif; }
+.submit-btn-action { background: #00c292; color: white; font-family: Nunito, sans-serif;}
 
 .final-actions { display: flex; gap: 15px; }
 
 .custom-toast {
+  font-family: Nunito, sans-serif;
   position: fixed;
   top: 20px;
   right: 20px; 

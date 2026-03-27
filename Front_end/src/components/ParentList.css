@@ -2,17 +2,21 @@
   --sidebar-teal: #007c89;
   --header-grey: #9da9ae;
   --table-cyan: #e1f7f9;
+  --active-teal: #16C4AE;
+
 }
 
 body {
   margin: 0;
   padding: 0;
   background-color: #f5f8f8;
+  font-family: Nunito, sans-serif;
 }
 
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
+  font-family: Nunito, sans-serif;
 }
 
 .nurture-sidebar {
@@ -20,6 +24,7 @@ body {
   background-color: var(--sidebar-teal);
   display: flex;
   flex-direction: column;
+  font-family: Nunito, sans-serif;
 }
 
 .sidebar-header {
@@ -30,6 +35,7 @@ body {
   justify-content: space-between;
   padding: 0 15px;
   border-bottom: 1px solid #ddd;
+  font-family: Nunito, sans-serif;
 }
 
 .main-logo { height: 35px; }
@@ -44,6 +50,7 @@ body {
 
 .sidebar-links {
   padding: 10px;
+  font-family: Nunito, sans-serif;
 }
 
 .nav-link {
@@ -56,20 +63,21 @@ body {
   margin-bottom: 8px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 6px;
-  
+  font-family: Nunito, sans-serif;
 }
 
 .nav-link.active {
   background-color: white;
-  color: #90E3D8;
-  border: 1px solid #90E3D8;
-  border-bottom: 2px solid#90E3D8;
+  color: var(--active-teal);
+  border: 1px solid var(--active-teal);
+  border-bottom: 2px solid var(--active-teal);
   font-weight: 600;
+  font-family: Nunito, sans-serif;
 }
 
 .nav-link span { margin-left: 12px; }
 
-.content-area { flex: 1; background-color: #F0F5F5;}
+.content-area { flex: 1; background-color: #F0F5F5; font-family: Nunito, sans-serif;}
 
 .top-nav {
   height: 60px;
@@ -79,6 +87,7 @@ body {
   align-items: center;
   padding: 0 30px;
   border-bottom: 1px solid #ddd;
+  font-family: Nunito, sans-serif;
 }
 
 .top-right {
@@ -87,11 +96,17 @@ body {
   gap: 25px;
 }
 
+.Notifications{
+  text-decoration: none;
+  color: var(--active-teal);
+  font-size: 20px;
+}
+
 .dot {
   position: absolute;
   top: -5px;
   right: -5px;
-  background: #00B9E8;
+  background:var(--sidebar-teal);
   color: white;
   font-size: 10px;
   width: 15px;
@@ -100,22 +115,27 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  font-family: Nunito, sans-serif;
 }
+
 
 .user-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  font-family: Nunito, sans-serif;
 }
 
-.user-name { font-size: 14px; font-weight: 500; margin: 0; }
-.user-avatar { border-radius: 50%; border: 1px solid #ddd; width: 50px; height: 50px;  }
+.user-name { font-size: 14px; font-weight: 500; margin: 0; font-family: Nunito, sans-serif;}
+.user-avatar { border-radius: 50%; border: 1px solid #ddd; width: 50px; height: 50px; font-family: Nunito, sans-serif; }
 
 .table-container { 
   padding: 20px 30px;
+  font-family: Nunito, sans-serif;
 }
 
 .table-header-bar {
+  font-family: Nunito, sans-serif;
   background: var(--header-grey);
   color: white;
   padding: 10px 20px;
@@ -128,8 +148,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1); 
 }
 
-.header-titles h2 { font-size: 18px; margin: 0; font-weight: 400; }
-.breadcrumb { font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
+.header-titles h2 { font-family: Nunito, sans-serif; font-size: 18px; margin: 0; font-weight: 400; }
+.breadcrumb { font-family: Nunito, sans-serif; font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
 
 .header-back-button {
   background-color: white;
@@ -154,7 +174,7 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.1)
 }
 
-.search-box { display: flex; }
+.search-box { display: flex; font-family: Nunito, sans-serif; }
 .search-box input {
   border: 1px solid #ddd;
   width: 250px;
@@ -162,6 +182,7 @@ body {
   border-radius: 4px 0 0 4px;
   outline: none;
   margin-top: 10px;
+  font-family: Nunito, sans-serif;
 }
 
 .search-btn {
@@ -183,9 +204,13 @@ body {
     width: fit-content;
     font-size: small;
     margin-top: 10px;
+    font-size: 13px;
+    color: var(--sidebar-teal);
+    font-family: Nunito, sans-serif;  
  }
 
 .add-btn {
+  font-family: Nunito, sans-serif;
   background: white ;
   height: 30px;
   width: fit-content;
@@ -198,9 +223,11 @@ body {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .nurture-table {
+  font-family: Nunito, sans-serif;
   width: 100%;
   background: white;
   border-collapse: collapse;
@@ -209,6 +236,7 @@ body {
 }
 
 .nurture-table th {
+  font-family: Nunito, sans-serif;
   background: var(--table-cyan);
   color: var(--sidebar-teal);
   text-align: left;
@@ -219,24 +247,30 @@ body {
 
 .nurture-table td {
   padding: 12px;
+  font-family: Nunito, sans-serif;
   border-bottom: 1px solid #f1f1f1;
   font-size: 13px;
   color: #444;
 }
 
-.user-td { display: flex; align-items: center; gap: 12px; }
+.user-td { display: flex; align-items: center; gap: 12px; font-family: Nunito, sans-serif;}
 .avatar-circle {
   width: 35px;
   height: 35px;
   background: var(--header-grey);
   border-radius: 50%;
   border: 3px solid rgba(241, 239, 239, 0.781);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .custom-toast {
+  font-family: Nunito, sans-serif;
   position: fixed;
   top: 20px;
   right: 20px; 
@@ -280,6 +314,7 @@ body {
 
 
 .modal-overlay {
+  font-family: Nunito, sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -293,11 +328,19 @@ body {
   backdrop-filter: blur(2px);
 }
 
+#model-btn {
+  font-family: Nunito, sans-serif;
+  display: flex;
+  gap: 10px;
+  width: 60px;
+  margin-left: 65%;
+  margin-bottom: -20px;
+}
+
 .confirm-modal {
   background: white;
   padding: 30px;
-  border-radius: 15px;
-  width: 90%;
+  border-radius: 6px;
   max-width: 400px;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -317,24 +360,43 @@ body {
   margin-top: 25px;
 }
 
+.modal-overlay p {
+  font-family: Nunito, sans-serif;
+  font-size: 12px;
+  color: #555;
+  margin-top: 0;
+}
+
+.modal-overlay h4 {
+  font-family: Nunito, sans-serif;
+  font-size: 18px;
+  margin: 0;
+  color: #333;
+}
+
 .modal-buttons button {
+  font-size: 12px;
   flex: 1;
   padding: 12px;
   border-radius: 8px;
   border: none;
-  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s; 
 }
 
-.cancel-btn { background: #eee; color: #333; }
+.cancel-btn { 
+  background: #eee; 
+  color: #333;
+}
+
 .cancel-btn:hover { background: #ddd; }
 
-.confirm-btn { color: white; }
+.confirm-btn { 
+  color: white;
+}
+
 .btn-red { background: #ff4d4d; }
 .btn-red:hover { background: #e60000; }
-.btn-blue { background: #4A90E2; }
-.btn-blue:hover { background: #357ABD; }
 
 .edit-icon, .delete-icon {
   cursor: pointer;
