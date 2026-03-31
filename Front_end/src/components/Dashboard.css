@@ -1,8 +1,11 @@
+:root {
+  --active-teal: #007c89; 
+}
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
     background-color: #f4f7fe;
-    font-family: Nunito, sans-serif;
+    font-family: 'Nunito', sans-serif;
 }
 
 .welcome-container {
@@ -16,10 +19,38 @@
 }
 
 .welcome-container h1 {
-    font-family: Nunito, sans-serif;
+    font-family: 'Nunito', sans-serif;
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 15px;
     letter-spacing: -1px;
 }
 
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 8px;
+  border: 1px solid white!important ;
+  border-bottom: 3px solid white !important;
+  border-radius: 6px;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.nav-link.active {
+  background-color: white !important; 
+  color: var(--active-teal) !important; 
+  border: 1px solid var(--active-teal) !important; 
+  border-bottom: 3px solid var(--active-teal) !important;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+.nav-link.active .icon-box, 
+.nav-link.active svg {
+  color: var(--active-teal);
+}

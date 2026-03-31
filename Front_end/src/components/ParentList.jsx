@@ -6,11 +6,11 @@ import Profile from "../Images/user-img7.png";
 import { 
   FaThLarge, FaUserFriends, FaChild, FaUserMd, 
   FaCalendarAlt, FaSyringe, FaSignOutAlt, FaSearch, 
-  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser, FaExclamationTriangle,
+  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser, 
   FaDivide
 } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
-import { MdArrowBack, MdSafetyDivider } from "react-icons/md";
+import { MdArrowBack } from "react-icons/md";
 import "../components/ParentList.css";
 
 function ParentList() {
@@ -121,7 +121,7 @@ function ParentList() {
         </header>
 
         <div className="table-container">
-          <div className="table-header-bar">
+          <div className="table-header-bar-parent">
             <div className="header-titles">
               <h2>Parents</h2>
               <p className="breadcrumb">Home / Parents</p>
