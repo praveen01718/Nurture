@@ -10,13 +10,13 @@ body {
   margin: 0;
   padding: 0;
   background-color: #f5f8f8;
-  font-family: 'Nunito', sans-serif;
+  font-family: Nunito, sans-serif;
 }
 
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
-  font-family: 'Nunito', sans-serif;
+  font-family: Nunito, sans-serif;
 }
 
 .nurture-sidebar {
@@ -24,7 +24,7 @@ body {
   background-color: var(--sidebar-teal);
   display: flex;
   flex-direction: column;
-  font-family: 'Nunito', sans-serif;
+  font-family: Nunito, sans-serif;
 }
 
 .sidebar-header {
@@ -35,7 +35,7 @@ body {
   justify-content: space-between;
   padding: 0 15px;
   border-bottom: 1px solid #ddd;
-  font-family: 'Nunito', sans-serif;
+  font-family: Nunito, sans-serif;
 }
 
 .main-logo { height: 35px; }
@@ -50,7 +50,7 @@ body {
 
 .sidebar-links {
   padding: 10px;
-  font-family: 'Nunito', sans-serif;
+  font-family: Nunito, sans-serif;
 }
 
 .nav-link {
@@ -64,7 +64,7 @@ body {
   border: 1px solid white;
   border-bottom: 3px solid white;
   border-radius: 6px;
-  font-family: 'Nunito', sans-serif;
+  font-family:'Nunito', sans-serif;
 }
 
 .nav-link.active {
@@ -73,12 +73,14 @@ body {
   border: 1px solid var(--active-teal);
   border-bottom: 3px solid var(--active-teal);
   font-weight: 600;
-  font-family: 'Nunito', sans-serif;
+  font-family:'Nunito', sans-serif;
 }
 
 .nav-link span { margin-left: 12px; }
 
-.content-area { flex: 1; background-color: #F0F5F5; font-family: 'Nunito', sans-serif;}
+.content-area { flex: 1; 
+  background-color: #ddd;
+  font-family: 'Nunito', sans-serif;}
 
 .top-nav {
   height: 60px;
@@ -116,7 +118,7 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Nunito', sans -serif; 
 }
 
 
@@ -131,11 +133,10 @@ body {
 .user-avatar { border-radius: 50%; border: 1px solid #ddd; width: 50px; height: 50px; font-family: 'Nunito', sans-serif; }
 
 .table-container { 
-  padding: 20px 30px;
-  font-family: 'Nunito', sans-serif;
+  padding: 20px 30px;Nunitofamily: 'Nunito', sans-serif;
 }
 
-.table-header-bar-parent {
+.table-header-bar-paNunito  {
   font-family: 'Nunito', sans-serif;
   background: var(--header-grey);
   color: white;
@@ -149,8 +150,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1); 
 }
 
-.header-titles h2 { font-family: 'Nunito', sans-serif; font-size: 18px; margin: 0; font-weight: 400; }
-.breadcrumb { font-family: 'Nunito', sans-serif; font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
+.header-tiNunito{ font-family: 'Nunito', sans-serif; font-size: 18px; margin: 0; font-weight: 400; }
+.breNunito{ font-family: 'Nunito', sans-serif; font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
 
 .header-back-button {
   background-color: white;
@@ -175,14 +176,14 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.1)
 }
 
-.search-box { display: flex; font-family: 'Nunito', sans-serif; }
+.search-box { display: flex; font-family: 'Nunito', sans-serif; } 
 .search-box input {
   border: 1px solid #ddd;
   width: 250px;
   height: 30px;
   border-radius: 4px 0 0 4px;
   outline: none;
-  margin-top: 10px;
+  margin-top:Nunito;
   font-family: 'Nunito', sans-serif;
 }
 
@@ -194,6 +195,7 @@ body {
   width: fit-content;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .action-btns { display: flex; gap: 10px; }
@@ -207,7 +209,7 @@ body {
     margin-top: 10px;
     font-size: 13px;
     color: var(--sidebar-teal);
-    font-family: 'Nunito', sans-serif;  
+    font-family: 'Nunito', sans-serif;
  }
 
 .add-btn {
@@ -233,7 +235,7 @@ body {
   background: white;
   border-collapse: collapse;
   border-radius: 0 0 6px 6px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1)
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .nurture-table th {
@@ -312,8 +314,6 @@ body {
 .edit-icon { color: #f39c12; margin-right: 12px; cursor: pointer; }
 .delete-icon { color: #e74c3c; cursor: pointer; }
 
-
-
 .modal-overlay {
   font-family: 'Nunito', sans-serif;
   position: fixed;
@@ -326,7 +326,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blNunito
 }
 
 #model-btn {
@@ -358,7 +358,7 @@ body {
 .modal-buttons {
   display: flex;
   gap: 12px;
-  margin-top: 25px;
+  margin-top: 20px;
 }
 
 .modal-overlay p {

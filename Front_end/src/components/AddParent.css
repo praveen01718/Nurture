@@ -112,7 +112,7 @@
 
 .form-main-wrapper { padding: 25px; }
 
-.table-header-bar-addParent {
+.table-header-bar {
   background: var(--header-grey);
   color: white;
   padding: 12px 20px;
@@ -373,9 +373,9 @@
   color: white;
 }
 
-.next-btn-action { background: var(--active-teal); color: white; width: fit-content; font-family: 'Nunito', sans-serif;}
-.prev-btn-action { background: #004d4d; color: white;font-family: 'Nunito', sans-serif; }
-.submit-btn-action { background: #00c292; color: white; font-family: 'Nunito', sans-serif;}
+.next-btn-action { background: var(--active-teal); color: white; width: fit-content; font-family: Nunito, sans-serif;}
+.prev-btn { background: #004d4d; color: white;font-family: Nunito, sans-serif; }
+.submit-btn-action { background: #00c292; color: white; font-family: Nunito, sans-serif;}
 
 .final-action-btns { display: flex; gap: 15px; }
 

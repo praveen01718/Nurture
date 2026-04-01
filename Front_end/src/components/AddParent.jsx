@@ -274,7 +274,7 @@ function AddParent() {
         </header>
 
         <div className="form-main-wrapper">
-          <div className="table-header-bar-addParent">
+          <div className="table-header-bar">
             <div className="header-titles">
               <h2>{editData ? "Edit Parent Info" : "Add Parent Info"}</h2>
               <p className="breadcrumb">Home / Parents / {editData ? "Edit" : "Add"} Parent Info</p>
@@ -425,8 +425,8 @@ function AddParent() {
                 {activeTab === "parent" ? (
                   <button className="next-btn-action" onClick={handleNext}><FaArrowRight /> Next</button>
                 ) : (
-                  <div className="final-action-btns">
-                    <button className="prev-btn-action" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
+                  <div className="final-actions">
+                    <button className="prev-btn" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
                     <button className="submit-btn-action" onClick={handleSubmit}><FaCheckDouble /> {editData ? "Update" : "Submit"}</button>
                   </div>
                 )}

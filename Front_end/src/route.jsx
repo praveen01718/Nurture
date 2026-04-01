@@ -24,6 +24,8 @@ const route = () => {
         <Route path="/Home/Parents/Add_parent" element={<AddParent/>} />
         <Route path="/Home/children" element={<ChildrenList/>}/>
         <Route path="/Home/children/add_child" element={<AddChild/>}/>
+        <Route path="/Home/Children" element={<ChildrenList />} />
+        <Route path="/Home/children/add_child" element={<AddChild />} />
       </Routes>
     </BrowserRouter>
   )

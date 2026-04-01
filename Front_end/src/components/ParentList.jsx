@@ -6,7 +6,7 @@ import Profile from "../Images/user-img7.png";
 import { 
   FaThLarge, FaUserFriends, FaChild, FaUserMd, 
   FaCalendarAlt, FaSyringe, FaSignOutAlt, FaSearch, 
-  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser
+  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser,
 } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
 import { MdArrowBack } from "react-icons/md";
