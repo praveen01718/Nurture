@@ -374,10 +374,10 @@
 }
 
 .next-btn-action { background: var(--active-teal); color: white; width: fit-content; font-family: 'Nunito', sans-serif;}
-.prev-btn { background: #004d4d; color: white;font-family: 'Nunito', sans-serif; }
+.prev-btn-addparent { background: #004d4d; color: white;font-family: 'Nunito', sans-serif;}
 .submit-btn-action { background: #00c292; color: white; font-family: 'Nunito', sans-serif;}
 
-.final-action-btns { display: flex; gap: 15px; }
+.final-action-btns { display: flex; gap: 10px; }
 
 .custom-toast {
   font-family: ''Nunito'', sans-serif;

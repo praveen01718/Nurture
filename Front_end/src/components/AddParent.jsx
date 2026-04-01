@@ -425,8 +425,8 @@ function AddParent() {
                 {activeTab === "parent" ? (
                   <button className="next-btn-action" onClick={handleNext}><FaArrowRight /> Next</button>
                 ) : (
-                  <div className="final-actions">
-                    <button className="prev-btn" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
+                  <div className="final-action-btns">
+                    <button className="prev-btn-addparent" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
                     <button className="submit-btn-action" onClick={handleSubmit}><FaCheckDouble /> {editData ? "Update" : "Submit"}</button>
                   </div>
                 )}
