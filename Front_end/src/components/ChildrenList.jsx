@@ -95,8 +95,8 @@ function ChildrenList() {
             <div className="search-side">
                 <div className="search-box">
                     <input type="text" placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                    <button className="search-btn"><FaSearch className="icon-search"/></button>
-                <button className="filter-btn"><FaFilter /> Filter</button>
+                    <button className="search-btn-child"><FaSearch className="icon-search"/></button>
+                <button className="filter-btn"><FaFilter/> Filter</button>
                 </div>  
             </div>
             <div className="action-btns">

@@ -9,7 +9,7 @@
 .nav-link {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
+  padding: 12px 13px;
   color: white;
   text-decoration: none;
   font-size: 13px;
@@ -33,11 +33,14 @@
   background-color: white;
   border: 1px solid var(--sidebar-teal);
   width: fit-content;
-  padding: 3px 6px;
+  height: 30px;
   border-radius: 4px;
   cursor: pointer;
   margin-left: 10px;
+  margin-top: -0.5px;
   font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  padding: 2px 8px;
 }   
 
 .table-header-bar-children {
@@ -133,6 +136,17 @@
   width: fit-content; 
   cursor: pointer; 
   font-family: 'Nunito', sans-serif;
+}
+
+.search-btn-child{
+  background: var(--sidebar-teal);
+  color: white;
+  font-size: 13px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  margin-top: -0.5px;
+  width: fit-content;
+  height: 30px;
 }
 
 .centered-muted { color: #adb5bd; text-align: center; font-family: 'Nunito', sans-serif;}

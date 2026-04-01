@@ -145,7 +145,7 @@ function ParentList() {
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
               />
-              <button className="search-btn"><FaSearch style={{marginBottom:'20px'}}/></button>
+              <button className="search-btn-parent"><FaSearch style={{marginBottom:'20px'}}/></button>
             </div>
             <div className="action-btns">
               <select className="sort-select">
