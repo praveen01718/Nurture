@@ -6,11 +6,10 @@ import Profile from "../Images/user-img7.png";
 import { 
   FaThLarge, FaUserFriends, FaChild, FaUserMd, 
   FaCalendarAlt, FaSyringe, FaSignOutAlt, FaSearch, 
-  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser, FaExclamationTriangle,
-  FaDivide
+  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser
 } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
-import { MdArrowBack, MdSafetyDivider } from "react-icons/md";
+import { MdArrowBack } from "react-icons/md";
 import "../components/ParentList.css";
 
 function ParentList() {
@@ -52,22 +51,31 @@ function ParentList() {
   };
 
   const confirmDelete = async () => {
+    if (!selectedParent) return;
+    
     setShowDeleteModal(false);
     try {
       const response = await axios.delete(`http://localhost:5000/api/parents/${selectedParent.id}`);
-      if (response.data.success) {
-        showToast("Record deleted successfully !", "success");
-        fetchParents();
+      
+      if (response.data.success || response.status === 200) {
+        showToast("Record deleted successfully!", "success");
+        setParents((prev) => prev.filter(p => p.id !== selectedParent.id));
       }
     } catch (error) {
+      console.error("Delete Error:", error);
       showToast("Server Error: Could not delete record.", "error");
+    } finally {
+      setSelectedParent(null);
     }
   };
 
   const filteredParents = parents.filter(parent => {
-    const fullName = `${parent.firstName || ""} ${parent.lastName || ""}`.toLowerCase();
-    const email = (parent.email || "").toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase()) || email.includes(searchTerm.toLowerCase());
+    const fName = parent.firstName?.toLowerCase() || "";
+    const lName = parent.lastName?.toLowerCase() || "";
+    const email = parent.email?.toLowerCase() || "";
+    const term = searchTerm.toLowerCase();
+    
+    return fName.includes(term) || lName.includes(term) || email.includes(term);
   });
 
   return (
@@ -121,7 +129,7 @@ function ParentList() {
         </header>
 
         <div className="table-container">
-          <div className="table-header-bar">
+          <div className="table-header-bar-parent">
             <div className="header-titles">
               <h2>Parents</h2>
               <p className="breadcrumb">Home / Parents</p>
@@ -131,7 +139,12 @@ function ParentList() {
 
           <div className="table-controls">
             <div className="search-box">
-              <input type="text" placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input 
+                type="text" 
+                placeholder="Search" 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
               <button className="search-btn"><FaSearch style={{marginBottom:'20px'}}/></button>
             </div>
             <div className="action-btns">
@@ -160,7 +173,7 @@ function ParentList() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" style={{textAlign: 'center', padding: '40px'}}>Loading...</td></tr>
+                <tr><td colSpan="7" style={{textAlign: 'center', padding: '40px'}}>Loading records...</td></tr>
               ) : filteredParents.length > 0 ? (
                 filteredParents.map((parent) => (
                   <tr key={parent.id}>
@@ -170,12 +183,12 @@ function ParentList() {
                           <img 
                             src={`http://localhost:5000/${parent.profileImage}`} 
                             alt="Profile" 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                            onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} 
+                            onError={(e) => { e.target.src = Profile; }} 
                           />
                         ) : (
-                          <FaUser style={{color: 'white', fontSize: '18px', marginTop: '5px', marginLeft: '5px' }} />
-                        )}
+                          <FaUser style={{color: 'white', fontSize: '18px', marginTop: '6px' , marginLeft: '6px' }} />
+                        )}  
                       </div>
                       <span className="name-text">{parent.firstName} {parent.lastName}</span>
                     </td>
@@ -183,7 +196,7 @@ function ParentList() {
                     <td>{parent.childrenCount || 0}</td>
                     <td>{parent.phoneNumber || '-'}</td>
                     <td className="email-link" style={{color:'#0000FF'}}>{parent.email}</td>
-                    <td>{parent.city}, {parent.state}</td>
+                    <td>{parent.city ? `${parent.city}, ${parent.state || ''}` : 'N/A'}</td>
                     <td className="action-td">
                       <FaEdit className="edit-icon" onClick={() => handleEdit(parent)} />
                       <FaTrash className="delete-icon" onClick={() => requestDelete(parent)} />
@@ -191,13 +204,13 @@ function ParentList() {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="7" style={{textAlign: 'center', padding: '40px'}}>No records found.</td></tr>
+                <tr><td colSpan="7" style={{textAlign: 'center', padding: '40px'}}>No records found matching your search.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
-    </div>
+    </div>      
   );
 }
 

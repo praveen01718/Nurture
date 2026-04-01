@@ -7,6 +7,8 @@ import ResetPassword from './components/ResetPassword'
 import ParentList from './components/ParentList'
 import AddParent from './components/AddParent'
 import Dashboard from './components/Dashboard'
+import ChildrenList from './components/ChildrenList'
+import AddChild from './components/AddChild'
 
 
 const route = () => {
@@ -20,6 +22,8 @@ const route = () => {
         <Route path="/Home/Dashboard" element={<Dashboard />} />
         <Route path="/Home/Parent" element={<ParentList />} />
         <Route path="/Home/Parents/Add_parent" element={<AddParent/>} />
+        <Route path="/Home/children" element={<ChildrenList/>}/>
+        <Route path="/Home/children/add_child" element={<AddChild/>}/>
       </Routes>
     </BrowserRouter>
   )

@@ -72,15 +72,17 @@ function AddParent() {
       const fetchChildren = async () => {
         try {
           const response = await fetch(`http://localhost:5000/api/parents/${editData.id}`);
-          const data = await response.json();
-          if (data.children && data.children.length > 0) {
-            setChildren(data.children.map(c => ({
-              ...c,
-              premature: c.premature || "no",
-              expectedDeliveryDate: c.expectedDeliveryDate ? c.expectedDeliveryDate.split('T')[0] : "",
-              dob: c.dob ? c.dob.split('T')[0] : "",
-              weeksPremature: c.weeksPremature || 0
-            })));
+          if (response.ok) {
+            const data = await response.json();
+            if (data.children && data.children.length > 0) {
+              setChildren(data.children.map(c => ({
+                ...c,
+                premature: c.premature || "no",
+                expectedDeliveryDate: c.expectedDeliveryDate ? c.expectedDeliveryDate.split('T')[0] : "",
+                dob: c.dob ? c.dob.split('T')[0] : "",
+                weeksPremature: c.weeksPremature || 0
+              })));
+            }
           }
         } catch (error) {
           console.error("Error fetching children:", error);
@@ -146,7 +148,7 @@ function AddParent() {
     const birth = new Date(dob);
     const expected = new Date(edd);
     if (isNaN(birth.getTime()) || isNaN(expected.getTime())) return 0;
-    const diffTime = expected - birth;
+    const diffTime = expected.getTime() - birth.getTime();
     const weeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
     return weeks > 0 ? weeks : 0;
   };
@@ -155,44 +157,56 @@ function AddParent() {
     const { name, value } = e.target;
     const updatedChildren = [...children];
     updatedChildren[index][name] = value;
+    
     if (name === "dob" || name === "expectedDeliveryDate") {
+      const currentChild = updatedChildren[index];
       updatedChildren[index].weeksPremature = calculateWeeks(
-        name === "dob" ? value : updatedChildren[index].dob,
-        name === "expectedDeliveryDate" ? value : updatedChildren[index].expectedDeliveryDate
+        currentChild.dob,
+        currentChild.expectedDeliveryDate
       );
     }
     setChildren(updatedChildren);
   };
 
   const validateChild = (child) => {
-    const baseValid = child.childName && child.dob && child.premature && child.gender;
-    return child.premature === "yes" ? (baseValid && child.expectedDeliveryDate) : baseValid;
+    const baseValid = child.childName && child.dob && child.gender;
+    if (child.premature === "yes") {
+      return baseValid && child.expectedDeliveryDate;
+    }
+    return baseValid;
   };
 
   const handleNext = () => {
     setIsSubmitted(true);
-    const { firstName, lastName, childrenCount, email, phoneNumber } = parentData;
-    if (firstName && lastName && childrenCount && email && phoneNumber) {
+    const { firstName, lastName, email, phoneNumber } = parentData;
+    if (firstName && lastName && email && phoneNumber) {
       setActiveTab("child");
-      setIsSubmitted(false);
+      setIsSubmitted(false); 
     }
-
-
   };
 
   const handleAddMoreChildren = () => {
     setIsSubmitted(true);
     if (validateChild(children[children.length - 1])) {
-      setChildren([...children, { childName: "", dob: "", premature: "no", expectedDeliveryDate: "", weeksPremature: 0, gender: "", bloodGroup: "", notes: "" }]);
+      setChildren([...children, { 
+        childName: "", dob: "", premature: "no", expectedDeliveryDate: "", 
+        weeksPremature: 0, gender: "", bloodGroup: "", notes: "" 
+      }]);
       setIsSubmitted(false);
+    } else {
+      showToast("Please fill the current child's information first.", "error");
     }
   };
 
   const handleSubmit = async () => {
     setIsSubmitted(true);
 
-    const isDuplicateEmail = allParents.some(p => p.email.toLowerCase() === parentData.email.toLowerCase() && p.id !== editData?.id);
-    const isDuplicatePhone = allParents.some(p => p.phoneNumber === parentData.phoneNumber && p.id !== editData?.id);
+    const isDuplicateEmail = allParents.some(p => 
+      p.email?.toLowerCase() === parentData.email.toLowerCase() && p.id !== editData?.id
+    );
+    const isDuplicatePhone = allParents.some(p => 
+      p.phoneNumber === parentData.phoneNumber && p.id !== editData?.id
+    );
 
     if (isDuplicateEmail) return alert("Email already exists for another parent.");
     if (isDuplicatePhone) return alert("Phone number already exists for another parent.");
@@ -213,6 +227,8 @@ function AddParent() {
         if (response.ok) {
           showToast(editData ? "Parent updated successfully !" : "Parent added successfully !", "success");
           setTimeout(() => navigate("/Home/Parent"), 1500);
+        } else {
+          showToast("Failed to save data.", "error");
         }
       } catch (error) {
         showToast("Network Error.", "error");
@@ -258,7 +274,7 @@ function AddParent() {
         </header>
 
         <div className="form-main-wrapper">
-          <div className="table-header-bar">
+          <div className="table-header-bar-addParent">
             <div className="header-titles">
               <h2>{editData ? "Edit Parent Info" : "Add Parent Info"}</h2>
               <p className="breadcrumb">Home / Parents / {editData ? "Edit" : "Add"} Parent Info</p>
@@ -409,8 +425,8 @@ function AddParent() {
                 {activeTab === "parent" ? (
                   <button className="next-btn-action" onClick={handleNext}><FaArrowRight /> Next</button>
                 ) : (
-                  <div className="final-actions">
-                    <button className="prev-btn" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
+                  <div className="final-action-btns">
+                    <button className="prev-btn-action" onClick={() => setActiveTab("parent")}>&larr; Prev</button>
                     <button className="submit-btn-action" onClick={handleSubmit}><FaCheckDouble /> {editData ? "Update" : "Submit"}</button>
                   </div>
                 )}

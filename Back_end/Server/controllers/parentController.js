@@ -15,7 +15,6 @@ exports.addParentWithChildren = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { parentData, children } = req.body;
-
     const newParent = await Parent.create(parentData, { transaction: t });
 
     if (children && Array.isArray(children)) {
@@ -27,7 +26,6 @@ exports.addParentWithChildren = async (req, res) => {
         bloodGroup: child.bloodGroup || null,
         notes: child.notes || null
       }));
-
       await Child.bulkCreate(cleanedChildren, { transaction: t });
     }
 
@@ -40,15 +38,24 @@ exports.addParentWithChildren = async (req, res) => {
 };
 
 exports.deleteParent = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-    const deleted = await Parent.destroy({ where: { id } });
+
+    await Child.destroy({ where: { parentId: id }, transaction: t });
+
+    const deleted = await Parent.destroy({ where: { id }, transaction: t });
+
     if (deleted) {
-      res.status(200).json({ success: true, message: "Deleted successfully!" });
+      await t.commit();
+      res.status(200).json({ success: true, message: "Deleted successfully !" });
     } else {
+      await t.rollback();
       res.status(404).json({ success: false, message: "Record not found" });
     }
   } catch (error) {
+    if (t) await t.rollback();
+    console.error("Delete Error:", error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 };
