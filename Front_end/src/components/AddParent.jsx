@@ -363,7 +363,7 @@ function AddParent() {
                             {isSubmitted && !child.dob && <span className="err-msg">Field is Required</span>}
                           </div>
                           <div className="field-group span-2">
-                            <label>Premature?</label>
+                            <label>Is your baby premature ?</label>
                             <div className="radio-group">
                               <label><input type="radio" checked={child.premature === "yes"} onChange={() => handleChildChange(index, { target: { name: 'premature', value: 'yes' } })} /> Yes</label>
                               <label><input type="radio" checked={child.premature === "no"} onChange={() => {
@@ -379,7 +379,7 @@ function AddParent() {
                           {child.premature === "yes" && (
                             <>
                               <div className="field-group">
-                                <label>Expected Delivery of Date</label>
+                                <label>Expected Date of Delivery</label>
                                 <input type="date" name="expectedDeliveryDate" value={child.expectedDeliveryDate} onChange={(e) => handleChildChange(index, e)} min={child.dob} />
                                 {isSubmitted && !child.expectedDeliveryDate && <span className="err-msg">Field is Required</span>}
                               </div>

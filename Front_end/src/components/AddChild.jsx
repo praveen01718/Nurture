@@ -321,7 +321,7 @@ function AddChild() {
                   {formData.isPremature === "yes" && (
                     <>
                       <div className="form-input-group">
-                        <label>Expected Delivery Date</label>
+                        <label>Expected Date of Delivery</label>
                         <input
                           type="date"
                           name="expectedDate"
