@@ -38,19 +38,6 @@ body {
   font-family: 'Nunito', sans-serif;
 }
 
-.table-header-bar-parent{
-  font-family: 'Nunito', sans-serif;
-  background: var(--header-grey);
-  color: white;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border-radius: 12px; 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .main-logo { height: 35px; }
 
 .header-grid-icon {
@@ -150,7 +137,7 @@ body {
   font-family: 'Nunito', sans-serif;
 }
 
-.table-header-bar-paNunito  {
+.table-header-bar-parent{
   font-family: 'Nunito', sans-serif;
   background: var(--header-grey);
   color: white;
@@ -164,8 +151,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1); 
 }
 
-.header-tiNunito{ font-family: 'Nunito', sans-serif; font-size: 18px; margin: 0; font-weight: 400; }
-.breNunito{ font-family: 'Nunito', sans-serif; font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
+.breadcrumb { font-family: 'Nunito', sans-serif; font-size: 11px; margin: 2px 0 0 0; opacity: 0.8; }
 
 .header-back-button {
   background-color: white;
@@ -197,7 +183,7 @@ body {
   height: 30px;
   border-radius: 4px 0 0 4px;
   outline: none;
-  margin-top:Nunito;
+  margin-top:'Nunito';
   font-family: 'Nunito', sans-serif;
 }
 
@@ -340,7 +326,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  backdrop-filter: blNunito
+  backdrop-filter: bl'Nunito'
 }
 
 #model-btn {

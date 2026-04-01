@@ -26,7 +26,7 @@ const Login = () => {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
-            <Nav className='me-auto Nav-links'>
+            <Nav className='me-auto Nav-links-login'>
               <Nav.Link href='/Home'>Home</Nav.Link>
               <Nav.Link href='/Parents'>Parents</Nav.Link>
               <Nav.Link href='/Clinics'>Clinics</Nav.Link>

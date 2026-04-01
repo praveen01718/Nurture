@@ -42,7 +42,7 @@ body {
   text-decoration: none;
 }
 
-.Nav-links {
+.Nav-links-login {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -54,12 +54,6 @@ body {
   margin-right: 10px;
   transition: color 0.2s ease;
   font-weight: 500;
-}
-
-.nav-links .nav-link:hover,
-.nav-links .nav-link:focus,
-.nav-links .nav-link.active {
-  color: #0c5485 !important;
 }
 
 .custom-navbar .navbar-collapse {
