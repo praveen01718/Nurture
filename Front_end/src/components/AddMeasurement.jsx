@@ -18,7 +18,6 @@ function AddMeasurement() {
   const [childData, setChildData] = useState(null);
   const [weight, setWeight] = useState("");
   const [length, setLength] = useState("");
-  const [headCircumference, setHeadCircumference] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [ageBy, setAgeBy] = useState("Date");
   const [bmi, setBmi] = useState("");
@@ -223,7 +222,7 @@ function AddMeasurement() {
               </div>
               
               <div className="summary-item">
-                <label>Parent Name</label>
+                <label>Parent</label>
                 <p>{childData ? `${childData.firstName} ${childData.lastName}` : "---"}</p>
               </div>
               
