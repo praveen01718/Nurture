@@ -14,6 +14,7 @@ function Hospital() {
   const [passwordError, setPasswordError] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,7 +38,8 @@ function Hospital() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage("Login Successfully");
+        setMessage("Login Successfully !");
+        setAlertType("success");
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
@@ -47,11 +49,13 @@ function Hospital() {
         if (data.type === "email") setUsernameError(data.message);
         else if (data.type === "password") setPasswordError(data.message);
         setMessage(data.message);
+        setAlertType("error");
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 3000);
       }
     } catch (err) {
       setMessage("Server connection failed");
+      setAlertType("error");
       setShowAlert(true);
     } finally {
       setLoading(false);
@@ -61,7 +65,7 @@ function Hospital() {
   return (
     <div className="page-cover">
       {showAlert && (
-        <div className={`custom-alert ${message !== "Login Successfully" ? "error-bg" : "success-bg"}`}>
+        <div className={`custom-alert ${alertType === "success" ? "success-bg" : "error-bg"}`}>
           <div className="alert-content">
             <span>{message}</span>
             <button className="alert-close-btn" onClick={() => setShowAlert(false)}>×</button>

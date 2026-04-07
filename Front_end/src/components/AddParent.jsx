@@ -4,8 +4,9 @@ import Logo from "../assets/nurture-logo.png";
 import Profile from "../Images/user-img7.png";
 import {
   FaThLarge, FaUserFriends, FaChild, FaUserMd, FaArrowRight,
-  FaCalendarAlt, FaSyringe, FaSignOutAlt, FaHome, FaBell, FaImage, FaCheckDouble
+  FaCalendarAlt, FaSignOutAlt, FaHome, FaBell, FaImage, FaCheckDouble
 } from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 import { MdArrowBack } from "react-icons/md";
 import "../components/AddParent.css";
 
@@ -237,7 +238,7 @@ function AddParent() {
           <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
           <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
           <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-          <Link to="/Home/vaccination" className="nav-link"><FaSyringe /> <span>Vaccination Schedule</span></Link>
+          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
           <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
         </nav>
       </aside>
@@ -258,7 +259,7 @@ function AddParent() {
         </header>
 
         <div className="form-main-wrapper">
-          <div className="table-header-bar">
+          <div className="table-header-bar-addParent">
             <div className="header-titles">
               <h2>{editData ? "Edit Parent Info" : "Add Parent Info"}</h2>
               <p className="breadcrumb">Home / Parents / {editData ? "Edit" : "Add"} Parent Info</p>
@@ -347,7 +348,7 @@ function AddParent() {
                             {isSubmitted && !child.dob && <span className="err-msg">Field is Required</span>}
                           </div>
                           <div className="field-group span-2">
-                            <label>Premature?</label>
+                            <label>Is your baby premature?</label>
                             <div className="radio-group">
                               <label><input type="radio" checked={child.premature === "yes"} onChange={() => handleChildChange(index, { target: { name: 'premature', value: 'yes' } })} /> Yes</label>
                               <label><input type="radio" checked={child.premature === "no"} onChange={() => {

@@ -2,9 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const db = require('./models');
 
 const parentRoutes = require('./routes/parentRoutes');
+const childProfileRoutes = require('./routes/childProfileRoutes');
+const measurementRoutes = require('./routes/measurementRoutes');
 const { 
     login, 
     validateAndSendOTP, 
@@ -14,8 +17,13 @@ const {
 
 const app = express();
 
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 app.use(cors({
-    origin: '*', 
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
@@ -23,7 +31,7 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadDir));
 
 app.post('/api/auth/login', login);
 app.post('/api/auth/validate-email', validateAndSendOTP);
@@ -31,19 +39,37 @@ app.post('/api/auth/verify-otp', verifyOTP);
 app.post('/api/auth/update-password', updatePassword);
 
 app.use('/api/parents', parentRoutes);
+app.use('/api/Child-datas', childProfileRoutes);
+app.use('/api/medical-measurements', measurementRoutes);
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        success: false, 
+        message: err.message || 'Internal Server Error' 
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 
-db.sequelize.authenticate()
-    .then(() => {
+const startServer = async () => {
+    try {
+        await db.sequelize.authenticate();
         console.log("-----------------------------------------");
-        console.log("Database Connected Successfully on port 5050");
+        console.log("Database Connected successfully");
+        
+        await db.sequelize.sync({ alter: true });
+        console.log("Database Synchronized");
+        console.log("-----------------------------------------");
+        
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
             console.log("-----------------------------------------");
         });
-    })
-    .catch(err => {
-        console.error("Database Connection Error: ", err);
-        process.exit(1); 
-    });
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+        process.exit(1);
+    }
+};
+
+startServer();

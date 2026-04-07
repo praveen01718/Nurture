@@ -1,0 +1,254 @@
+:root {
+  --sidebar-teal: #007c89;
+  --header-grey: #9da9ae;
+  --table-cyan: #e1f7f9;
+  --active-teal: #16C4AE;
+  --girl-pink: rgba(230, 130, 200, 0.911);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 13px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 8px;
+  border: 1px solid white;
+  border-bottom: 3px solid white;
+  border-radius: 6px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.nav-link.active {
+  background-color: white;
+  color: var(--active-teal);
+  border: 1px solid var(--active-teal);
+  border-bottom: 3px solid var(--active-teal);
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+}
+
+.nav-link:hover {
+  background-color: transparent;
+  color: white;
+}
+
+.filter-btn {
+  color: var(--sidebar-teal); 
+  background-color: white;
+  border: 1px solid var(--sidebar-teal);
+  width: 100px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  padding: 2px 8px;
+}   
+
+.table-header-bar-children {
+  font-family: 'Nunito', sans-serif;
+  background: var(--header-grey);
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-radius: 12px; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+.add-btn {
+  width: fit-content;
+  text-decoration: none;
+}
+
+.icon-search {
+  margin-bottom: 30px;
+}
+
+.nurture-table { 
+  width: 100%;
+  font-family: 'Nunito', sans-serif;
+  border-collapse: collapse; 
+  background: white; 
+  border-radius: 8px; 
+  overflow: hidden; 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+}
+
+.nurture-table th { 
+  background: var(--table-cyan); 
+  color: var(--sidebar-teal); 
+  text-align: left; 
+  padding: 12px; 
+  font-size: 12px; 
+  font-weight: 600; 
+  font-family: 'Nunito', sans-serif;
+}
+
+.nurture-table td { 
+  padding: 15px 12px; 
+  border-bottom: 1px solid #f1f1f1; 
+  vertical-align: top; 
+  font-family: 'Nunito', sans-serif;
+}
+
+.child-info-cell {
+  display: flex;
+  gap: 12px; 
+  font-family: 'Nunito', sans-serif;
+}
+
+.avatar-placeholder-icon { color: #adb5bd; font-size: 18px; }
+.child-details-stack { display: flex; flex-direction: column; }
+.child-name-text { font-weight: 700; color: #333; font-size: 14px; font-family: 'Nunito', sans-serif; }
+.gender-age-text { font-size: 11px; font-weight: 700; margin: 2px 0; font-family: 'Nunito', sans-serif;}
+.gender-age-text.girl { color: var(--girl-pink); }
+.gender-age-text.boy { color: skyblue; }
+
+.child-action-row { display: flex; gap: 5px; align-items: center; font-family: 'Nunito', sans-serif;}
+.action-icon { cursor: pointer; font-size: 13px; }
+.icon-analysis { color: #28a745; }   
+.icon-vaccine { color: var(--sidebar-teal); } 
+.icon-date { color: #9464E9; }  
+.icon-patient { color: #17a2b8; } 
+
+.btn-mini-add {
+  background: var(--active-teal); 
+  color: white; 
+  border: none;
+  font-size: 10px; 
+  padding: 2px 8px; 
+  border-radius: 4px;
+  width: fit-content; 
+  cursor: pointer; 
+  font-family: 'Nunito', sans-serif;
+}
+
+.search-btn-child{
+  background: var(--sidebar-teal);
+  color: white;
+  font-size: 13px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  margin-top: 10px;
+  width: fit-content;
+  height: 30px;
+}
+
+.centered-muted { color: #adb5bd; text-align: center; font-family: 'Nunito', sans-serif;}
+.blood-cell { color: #444; font-weight: 500; font-size: 13px; font-family: 'Nunito', sans-serif;}
+.description-icon { color: var(--sidebar-teal); cursor: pointer; font-size: 16px; font-family: 'Nunito', sans-serif; }
+
+
+.modal-overlay {
+  font-family: 'Nunito', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  width: 350px;
+  height: fit-content;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-header {
+  background-color: var(--sidebar-teal);
+  border-top: 3px solid var(--active-teal); 
+  color: white;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.modal-close-btn {
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  color: var(--sidebar-teal);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 6px;
+}
+
+.modal-card {
+  border: 1px solid var(--active-teal);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--active-teal);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-card:hover {
+  background-color: #44cfbd4d;
+}
+
+.modal-card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.modal-card-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.child-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--header-grey);
+  overflow: hidden;
+}
+
+.gender-age-text {
+  font-size: 12px;
+  font-weight: 500;
+}

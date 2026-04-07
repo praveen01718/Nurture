@@ -5,12 +5,12 @@ import Logo from "../assets/nurture-logo.png";
 import Profile from "../Images/user-img7.png";
 import { 
   FaThLarge, FaUserFriends, FaChild, FaUserMd, 
-  FaCalendarAlt, FaSyringe, FaSignOutAlt, FaSearch, 
-  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser, FaExclamationTriangle,
-  FaDivide
+  FaCalendarAlt, FaSignOutAlt, FaSearch, 
+  FaChartBar, FaEdit, FaTrash, FaPlusSquare, FaBell, FaHome, FaUser,
 } from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 import { VscError } from "react-icons/vsc";
-import { MdArrowBack, MdSafetyDivider } from "react-icons/md";
+import { MdArrowBack, } from "react-icons/md";
 import "../components/ParentList.css";
 
 function ParentList() {
@@ -102,7 +102,7 @@ function ParentList() {
           <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
           <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
           <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-          <Link to="/Home/vaccination" className="nav-link"><FaSyringe /> <span>Vaccination Schedule</span></Link>
+          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
           <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
         </nav>
       </aside>
@@ -121,7 +121,7 @@ function ParentList() {
         </header>
 
         <div className="table-container">
-          <div className="table-header-bar">
+          <div className="table-header-bar-parent">
             <div className="header-titles">
               <h2>Parents</h2>
               <p className="breadcrumb">Home / Parents</p>

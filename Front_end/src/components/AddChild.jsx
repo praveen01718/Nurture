@@ -1,0 +1,306 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Logo from "../assets/nurture-logo.png";
+import Profile from "../Images/user-img7.png";
+import {
+  FaThLarge, FaUserFriends, FaChild, FaUserMd, FaArrowRight,
+  FaCalendarAlt, FaSignOutAlt, FaHome, FaBell, FaImage, FaCheckDouble
+} from "react-icons/fa";
+import { MdArrowBack } from "react-icons/md";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import "./AddChild.css";
+
+function AddChild() {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const today = new Date().toISOString().split("T")[0];
+
+  const [activeTab, setActiveTab] = useState("child");
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
+
+  const [formData, setFormData] = useState({
+    childName: "",
+    dob: "",
+    gender: "",
+    bloodGroup: "",
+    isPremature: "no",
+    expectedDate: "",
+    weeksPremature: 0,
+    firstName: "",
+    lastName: "",
+    childrenCount: "",
+    phone: "",
+    email: "",
+    relation: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    zip: "",
+    note: ""
+  });
+
+  const handleFile = (file) => {
+    if (file && file.type.startsWith("image/")) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const onDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const onDragLeave = () => setIsDragging(false);
+  const onDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  useEffect(() => {
+    if (formData.dob && formData.expectedDate && formData.isPremature === "yes") {
+      const birth = new Date(formData.dob);
+      const expected = new Date(formData.expectedDate);
+      if (expected > birth) {
+        const diffWeeks = Math.floor(Math.abs(expected - birth) / (1000 * 60 * 60 * 24 * 7));
+        setFormData((prev) => ({ ...prev, weeksPremature: diffWeeks }));
+      } else {
+        setFormData((prev) => ({ ...prev, weeksPremature: 0 }));
+      }
+    }
+  }, [formData.dob, formData.expectedDate, formData.isPremature]);
+
+  const showToast = (message, type) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateTab = (tab) => {
+    let newErrors = {};
+    if (tab === "child") {
+      if (!formData.childName) newErrors.childName = "Field is Required";
+      if (!formData.dob) newErrors.dob = "Field is Required";
+      if (!formData.gender) newErrors.gender = "Field is Required";
+      if (!formData.bloodGroup) newErrors.bloodGroup = "Field is Required";
+      if (formData.isPremature === "yes" && !formData.expectedDate) newErrors.expectedDate = "Field is Required";
+    } else {
+      if (!formData.firstName) newErrors.firstName = "Field is Required";
+      if (!formData.lastName) newErrors.lastName = "Field is Required";
+      if (!formData.childrenCount) newErrors.childrenCount = "Field is Required";
+      if (!formData.phone) newErrors.phone = "Field is Required";
+      if (!formData.email) newErrors.email = "Field is Required";
+      if (!formData.relation) newErrors.relation = "Field is Required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    const childValid = validateTab("child");
+    const parentValid = validateTab("parent");
+    
+    if (childValid && parentValid) {
+      try {
+        const submissionData = new FormData();
+        Object.keys(formData).forEach(key => submissionData.append(key, formData[key]));
+        if (selectedFile) submissionData.append("profileImage", selectedFile);
+
+        const response = await axios.post("http://localhost:5000/api/Child-datas/add", submissionData);
+        if (response.status === 201 || response.status === 200) {
+          showToast("Child Added Successfully !", "success");
+          setTimeout(() => navigate("/Home/children"), 1500);
+        }
+      } catch (error) {
+        showToast(error.response?.data?.message || "Submission failed.", "error");
+      }
+    }
+  };
+
+  return (
+    <div className="dashboard-wrapper">
+      {toast.show && <div className={`custom-toast ${toast.type}`}>{toast.message}</div>}
+
+      {showAlert && (
+        <div className={`custom-alert ${alertType === "success" ? "success-bg" : "error-bg"}`}>
+          <div className="alert-content">
+            <span>{alertMessage}</span>
+          </div>
+        </div>
+      )}
+
+      <aside className="nurture-sidebar">
+        <div className="sidebar-header">
+          <img src={Logo} alt="Logo" className="main-logo" />
+          <button className="header-grid-icon"><FaThLarge /></button>
+        </div>
+        <nav className="sidebar-links">
+          <Link to="/Home/Dashboard" className="nav-link"><FaHome /> <span>Dashboard</span></Link>
+          <Link to="/Home/Parent" className="nav-link"><FaUserFriends /> <span>Parents</span></Link>
+          <Link to="/Home/children" className="nav-link active"><FaChild /> <span>Children</span></Link>
+          <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
+          <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
+          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
+          <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
+        </nav>
+      </aside>
+
+      <div className="content-area">
+        <header className="top-nav">
+          <div className="top-right">
+            <div className="notif-box"><FaBell /><span className="dot">18</span></div>
+            <div className="user-info">
+              <img src={Profile} alt="profile" className="user-avatar" />
+              <p className="user-name">Kalai Arasan</p>
+            </div>
+          </div>
+        </header>
+
+        <div className="table-header-bar">
+          <div className="header-titles">
+            <h2>{activeTab === "child" ? "Child Info" : "Parent Info"}</h2>
+            <p className="breadcrumb">Home / Children / {activeTab === "child" ? "Child Info" : "Parent Info"}</p>
+          </div>
+          <button className="header-back-button" onClick={() => navigate(-1)}><MdArrowBack /></button>
+        </div>
+
+        <div className="add-child-main-layout">
+          <div className="upload-side-card">
+            <div className={`upload-inner ${isDragging ? "dragging" : ""}`} 
+                 onClick={() => fileInputRef.current.click()} 
+                 onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+              <input type="file" ref={fileInputRef} onChange={(e) => handleFile(e.target.files[0])} hidden accept="image/*" />
+              <div className="image-frame">
+                {previewUrl ? <img src={previewUrl} alt="Preview" /> : <FaImage className="placeholder-img-icon" />}
+              </div>
+              <p>Edit/Change<br />(Drag and Drop)</p>
+            </div>
+            <button className="upload-text-link" onClick={() => {
+              if (!selectedFile) {
+                setAlertMessage("Please select an image first.");
+                setAlertType("error");
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 3000);
+                return;
+              }
+              setAlertMessage("Image uploaded successfully !");
+              setAlertType("success");
+              setShowAlert(true);
+              setTimeout(() => setShowAlert(false), 3000);
+            }}>Upload Picture</button>
+          </div>
+
+          <div className="form-side-container">
+            <div className="tab-switcher">
+              <button className={`tab-item ${activeTab === "child" ? "active" : ""}`} onClick={() => setActiveTab("child")}>Child Info</button>
+              <button className={`tab-item ${activeTab === "parent" ? "active" : ""}`} onClick={() => setActiveTab("parent")}>Parent Info</button>
+            </div>
+
+            <div className="form-card-body">
+              {activeTab === "child" ? (
+                <div className="child-form-grid">
+                  <div className="form-input-group">
+                    <label>Child Name</label>
+                    <input type="text" name="childName" value={formData.childName} onChange={handleInputChange} placeholder="Name" />
+                    {errors.childName && <span className="error-msg">{errors.childName}</span>}
+                  </div>
+                  <div className="form-input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" max={today} value={formData.dob} onChange={handleInputChange} />
+                    {errors.dob && <span className="error-msg">{errors.dob}</span>}
+                  </div>
+                  <div className="form-input-group">
+                    <label>Is your baby premature?</label>
+                    <div className="premature-radios">
+                      <label><input type="radio" name="isPremature" value="yes" checked={formData.isPremature === "yes"} onChange={handleInputChange} /> Yes</label>
+                      <label><input type="radio" name="isPremature" value="no" checked={formData.isPremature === "no"} onChange={handleInputChange} /> No</label>
+                    </div>
+                  </div>
+                  {formData.isPremature === "yes" && (
+                    <>
+                      <div className="form-input-group">
+                        <label>Expected Date of Delivery</label>
+                        <input type="date" name="expectedDate" min={formData.dob || today} value={formData.expectedDate} onChange={handleInputChange} />
+                        {errors.expectedDate && <span className="error-msg">{errors.expectedDate}</span>}
+                      </div>
+                      <div className="form-input-group">
+                        <label>Number of Weeks Premature</label>
+                        <input type="text" readOnly value={`${formData.weeksPremature} Weeks`} className="readonly-input" />
+                      </div>
+                    </>
+                  )}
+                  <div className="form-input-group">
+                    <label>Gender</label>
+                    <select name="gender" value={formData.gender} onChange={handleInputChange}>
+                      <option value="">Select</option>
+                      <option value="Boy">Boy</option>
+                      <option value="Girl">Girl</option>
+                    </select>
+                    {errors.gender && <span className="error-msg">{errors.gender}</span>}
+                  </div>
+                  <div className="form-input-group">
+                    <label>Blood Group</label>
+                    <select name="bloodGroup" value={formData.bloodGroup} onChange={handleInputChange}>
+                      <option value="">Select</option>
+                      {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                    </select>
+                    {errors.bloodGroup && <span className="error-msg">{errors.bloodGroup}</span>}
+                  </div>
+                  <div className="form-input-group full-width">
+                    <label>Note</label>
+                    <textarea className="form-control" name="note" value={formData.note} onChange={handleInputChange} rows="3"></textarea>
+                  </div>
+                  <div className="form-footer-actions full-width">
+                    <button className="next-action-btn" onClick={() => { if (validateTab("child")) setActiveTab("parent"); }}>Next <FaArrowRight /></button>
+                  </div>
+                </div>
+              ) : (
+                <div className="child-form-grid">
+                  <div className="three-column-row">
+                    <div className="form-input-group"><label>First Name</label><input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} />{errors.firstName && <span className="error-msg">{errors.firstName}</span>}</div>
+                    <div className="form-input-group"><label>Last Name</label><input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} />{errors.lastName && <span className="error-msg">{errors.lastName}</span>}</div>
+                    <div className="form-input-group"><label>Children</label><input type="text" name="childrenCount" value={formData.childrenCount} onChange={handleInputChange} />{errors.childrenCount && <span className="error-msg">{errors.childrenCount}</span>}</div>
+                  </div>
+                  <div className="form-input-group"><label>Phone</label><input type="text" name="phone" value={formData.phone} onChange={handleInputChange} />{errors.phone && <span className="error-msg">{errors.phone}</span>}</div>
+                  <div className="form-input-group"><label>Email</label><input type="email" name="email" value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
+                  <div className="form-input-group">
+                    <label>Relation</label>
+                    <select name="relation" value={formData.relation} onChange={handleInputChange}>
+                      <option value="">Select</option>
+                      <option value="Father">Father</option><option value="Mother">Mother</option>
+                    </select>
+                    {errors.relation && <span className="error-msg">{errors.relation}</span>}
+                  </div>
+                  {['address1', 'address2', 'city', 'state', 'zip'].map(field => (
+                    <div className="form-input-group" key={field}>
+                      <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                      <input type="text" name={field} value={formData[field]} onChange={handleInputChange} />
+                    </div>
+                  ))}
+                  <div className="form-footer-actions full-width">
+                    <button className="prev-btn" onClick={() => setActiveTab("child")}>← Prev</button>
+                    <button className="submit-btn" onClick={handleSubmit}><FaCheckDouble /> Submit</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default AddChild;

@@ -4,8 +4,9 @@ import Logo from "../assets/nurture-logo.png";
 import Profile from "../Images/user-img7.png";
 import { 
   FaThLarge, FaUserFriends, FaChild, FaUserMd, 
-  FaCalendarAlt, FaSyringe, FaSignOutAlt, FaBell, FaHome 
+  FaCalendarAlt, FaSignOutAlt, FaBell, FaHome 
 } from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 import "../components/Dashboard.css";
 
 function Dashboard() {
@@ -24,7 +25,7 @@ function Dashboard() {
           <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
           <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
           <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-          <Link to="/Home/vaccination" className="nav-link"><FaSyringe /> <span>Vaccination Schedule</span></Link>
+          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
           <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
         </nav>
       </aside>

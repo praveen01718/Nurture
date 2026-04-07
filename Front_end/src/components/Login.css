@@ -12,8 +12,7 @@ body {
 .custom-navbar {
   opacity: 90%;
   background-color: rgb(66,120,130, 0.8) !important;
-  box-shadow: 0px 0px 15px 0px rgba(1, 41, 112, 0.1); 
-  border-bottom: #fff 1px solid;
+  box-shadow: 0px 0px 15px 0px rgba(1, 41, 112, 0.1);
 }
 
 .get-button{
@@ -42,33 +41,17 @@ body {
   text-decoration: none;
 }
 
-.Nav-links {
+.page-nav {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-left: 62%;
-  gap: 1rem;
+  margin-left: 52%;
+  gap: 0.5rem;
 }
 
-.nav-links .nav-link {
-  margin-right: 10px;
-  transition: color 0.2s ease;
-  font-weight: 500;
-}
-
-.nav-links .nav-link:hover,
-.nav-links .nav-link:focus,
-.nav-links .nav-link.active {
-  color: #0c5485 !important;
-}
 
 .custom-navbar .navbar-collapse {
   justify-content: flex-start;
-}
-
-.login-dropdown > .nav-link {
-  background-color: #00B4DC;
-  color: #fff !important;
 }
 
 .hero-content {
@@ -152,5 +135,19 @@ body {
   border-radius: 0.6rem;
   border: 1px solid rgba(255, 111, 154, 0.5);
   padding: 0.2rem 0.6rem;
+}
+
+#login-nav-dropdown{
+  background-color: #00B4DC;
+  color: #fff !important;
+  border: none !important;
+}
+
+.page-nav .nav-link {
+  border: none !important;
+}
+
+.login-dropdown .dropdown-menu {
+  border: none !important;
 }
 
