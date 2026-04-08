@@ -126,7 +126,7 @@ function ParentList() {
               <h2>Parents</h2>
               <p className="breadcrumb">Home / Parents</p>
             </div>
-            <div className="header-back-button" onClick={() => navigate(-1)}><MdArrowBack size={30} /></div>
+            <div className="header-back-button" onClick={() => navigate("/Home/dashboard")}><MdArrowBack size={20} /></div>
           </div>
 
           <div className="table-controls">

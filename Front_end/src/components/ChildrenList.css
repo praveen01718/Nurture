@@ -30,22 +30,25 @@
 }
 
 .nav-link:hover {
-  background-color: transparent;
   color: white;
+}
+
+.nav-link.active:hover{
+  color: var(--active-teal);
 }
 
 .filter-btn {
   color: var(--sidebar-teal); 
   background-color: white;
   border: 1px solid var(--sidebar-teal);
-  width: 100px;
+  width: fit-content;
   height: 30px;
   border-radius: 4px;
   cursor: pointer;
   margin-left: 10px;
   margin-top: 10px;
   font-family: 'Nunito', sans-serif;
-  font-size: 14px;
+  font-size: 12px;
   padding: 2px 8px;
 }   
 
@@ -201,8 +204,10 @@
 .modal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 14px;
+  margin-top: 5px;
   padding: 6px 6px;
+  padding-bottom: 20px;
 }
 
 .modal-card {
@@ -222,13 +227,14 @@
 }
 
 .modal-card-icon {
-  font-size: 28px;
-  margin-bottom: 10px;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
 .modal-card-label {
   font-size: 13px;
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
 @keyframes fadeIn {
@@ -240,7 +246,7 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  border: 2px solid; 
+  border: 3px solid; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -251,4 +257,12 @@
 .gender-age-text {
   font-size: 12px;
   font-weight: 500;
+}
+
+.search-box{
+  font-size: 14px;
+}
+
+.sort-select{
+  width: fit-content;
 }

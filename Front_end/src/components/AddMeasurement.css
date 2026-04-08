@@ -115,6 +115,17 @@ body {
   padding: 18px 25px;
   border-radius: 8px;
   margin-bottom: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.breadcrumb-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .breadcrumb-banner h2 {
@@ -123,11 +134,23 @@ body {
   font-weight: 600;
 }
 
-.breadcrumb-banner p {
-  margin: 5px 0 0;
+.breadcrumb-banner p,
+.breadcrumb {
+  margin: 0;
   font-size: 12px;
   opacity: 0.9;
 }
+
+.header-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: white;
+  cursor: pointer;
+}
+
 
 .measurement-white-card {
   background: white;
@@ -247,13 +270,14 @@ body {
   background: #f8f9fa;
   padding: 0 15px;
   display: flex;
-  align-items: center;
-  font-size: 12px;
   font-weight: 600;
   color: #777;
   border-left: 1px solid var(--border-color);
   min-width: 60px;
+  font-size: 12px;
+  padding-left: 50px;
   justify-content: center;
+  align-items: center;
 }
 
 .readonly-input {
@@ -309,8 +333,26 @@ body {
   gap: 20px;
   align-items: center;
   border: 1px solid var(--border-color);
-  padding: 6px 10px;
+  padding: 2px 10px;
   border-radius: 6px;
+}
+
+.radio-container label {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  margin-top: 10px ;
+  gap: 6px;
+  
+}
+
+.radio-container input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
 }
 
 .custom-select{

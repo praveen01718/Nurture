@@ -264,8 +264,8 @@ function AddParent() {
               <h2>{editData ? "Edit Parent Info" : "Add Parent Info"}</h2>
               <p className="breadcrumb">Home / Parents / {editData ? "Edit" : "Add"} Parent Info</p>
             </div>
-            <div className="header-back-button" onClick={() => navigate(-1)}>
-              <MdArrowBack size={30} />
+            <div className="header-back-button" onClick={() => navigate("/Home/Parent")}>
+              <MdArrowBack size={20} />
             </div>
           </div>
 

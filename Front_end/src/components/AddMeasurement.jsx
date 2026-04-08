@@ -5,9 +5,11 @@ import Logo from "../assets/nurture-logo.png";
 import Profile from "../Images/user-img7.png";
 import {
   FaThLarge, FaUserFriends, FaChild, FaUserMd, FaUser,
-  FaCalendarAlt, FaSignOutAlt, FaBell, FaHome,
+  FaCalendarAlt, FaSignOutAlt, FaBell, FaHome,  
   FaArrowLeft, FaCheckDouble
 } from "react-icons/fa";
+import { MdArrowBack } from "react-icons/md";
+
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import "./AddMeasurement.css";
 
@@ -121,7 +123,7 @@ function AddMeasurement() {
       child_id: childId,
       weight: parseFloat(weight),
       length: parseFloat(length),
-      head_circumference: headCircumference ? parseFloat(headCircumference) : 0,
+      head_circumference: 0,
       bmi: parseFloat(bmi),
       measurement_date: selectedDate,
       age_type: ageBy,
@@ -196,8 +198,11 @@ function AddMeasurement() {
 
         <main className="measurement-main">
           <div className="breadcrumb-banner">
-            <h2>Add Measurement</h2>
-            <p>Home / Add Measurement</p>
+            <div className="breadcrumb-title-group">
+              <h2>Add Measurement</h2>
+              <p className="breadcrumb">Home / Add Measurement</p>
+            </div>
+            <div className="header-back-button" onClick={() => navigate("/Home/children")}><MdArrowBack size={20} /></div>
           </div>
 
           <div className="measurement-white-card">

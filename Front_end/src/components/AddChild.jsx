@@ -40,8 +40,8 @@ function AddChild() {
     phone: "",
     email: "",
     relation: "",
-    address1: "",
-    address2: "",
+    "address Line 1": "",
+    "address Line 2": "",
     city: "",
     state: "",
     zip: "",
@@ -173,7 +173,7 @@ function AddChild() {
             <h2>{activeTab === "child" ? "Child Info" : "Parent Info"}</h2>
             <p className="breadcrumb">Home / Children / {activeTab === "child" ? "Child Info" : "Parent Info"}</p>
           </div>
-          <button className="header-back-button" onClick={() => navigate(-1)}><MdArrowBack /></button>
+            <div className="header-back-button" onClick={() => navigate("/Home/children")}><MdArrowBack size={20} /></div>
         </div>
 
         <div className="add-child-main-layout">
@@ -213,7 +213,7 @@ function AddChild() {
                 <div className="child-form-grid">
                   <div className="form-input-group">
                     <label>Child Name</label>
-                    <input type="text" name="childName" value={formData.childName} onChange={handleInputChange} placeholder="Name" />
+                    <input type="text" name="childName" value={formData.childName} onChange={handleInputChange} placeholder="Child Name" />
                     {errors.childName && <span className="error-msg">{errors.childName}</span>}
                   </div>
                   <div className="form-input-group">
@@ -269,12 +269,12 @@ function AddChild() {
               ) : (
                 <div className="child-form-grid">
                   <div className="three-column-row">
-                    <div className="form-input-group"><label>First Name</label><input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} />{errors.firstName && <span className="error-msg">{errors.firstName}</span>}</div>
-                    <div className="form-input-group"><label>Last Name</label><input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} />{errors.lastName && <span className="error-msg">{errors.lastName}</span>}</div>
-                    <div className="form-input-group"><label>Children</label><input type="text" name="childrenCount" value={formData.childrenCount} onChange={handleInputChange} />{errors.childrenCount && <span className="error-msg">{errors.childrenCount}</span>}</div>
+                    <div className="form-input-group"><label>First Name</label><input type="text" name="firstName" placeholder="First Name" value={formData.firstName} onChange={handleInputChange} />{errors.firstName && <span className="error-msg">{errors.firstName}</span>}</div>
+                    <div className="form-input-group"><label>Last Name</label><input type="text" name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleInputChange} />{errors.lastName && <span className="error-msg">{errors.lastName}</span>}</div>
+                    <div className="form-input-group"><label>Children</label><input type="text" name="childrenCount" placeholder="Ex. 2" value={formData.childrenCount} onChange={handleInputChange} />{errors.childrenCount && <span className="error-msg">{errors.childrenCount}</span>}</div>
                   </div>
-                  <div className="form-input-group"><label>Phone</label><input type="text" name="phone" value={formData.phone} onChange={handleInputChange} />{errors.phone && <span className="error-msg">{errors.phone}</span>}</div>
-                  <div className="form-input-group"><label>Email</label><input type="email" name="email" value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
+                  <div className="form-input-group"><label>Phone</label><input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInputChange} />{errors.phone && <span className="error-msg">{errors.phone}</span>}</div>
+                  <div className="form-input-group"><label>Email</label><input type="email" name="email" placeholder="youremail@mail.com" value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
                   <div className="form-input-group">
                     <label>Relation</label>
                     <select name="relation" value={formData.relation} onChange={handleInputChange}>
@@ -283,10 +283,10 @@ function AddChild() {
                     </select>
                     {errors.relation && <span className="error-msg">{errors.relation}</span>}
                   </div>
-                  {['address1', 'address2', 'city', 'state', 'zip'].map(field => (
+                  {['address Line 1', 'address Line 2', 'city', 'state', 'zip'].map(field => (
                     <div className="form-input-group" key={field}>
                       <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                      <input type="text" name={field} value={formData[field]} onChange={handleInputChange} />
+                      <input type="text" name={field} value={formData[field]} onChange={handleInputChange} placeholder={`Enter the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`} />
                     </div>
                   ))}
                   <div className="form-footer-actions full-width">

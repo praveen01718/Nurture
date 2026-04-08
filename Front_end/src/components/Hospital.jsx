@@ -68,7 +68,6 @@ function Hospital() {
         <div className={`custom-alert ${alertType === "success" ? "success-bg" : "error-bg"}`}>
           <div className="alert-content">
             <span>{message}</span>
-            <button className="alert-close-btn" onClick={() => setShowAlert(false)}>×</button>
           </div>
         </div>
       )}

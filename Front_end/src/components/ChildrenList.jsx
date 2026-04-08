@@ -136,7 +136,7 @@ function ChildrenList() {
               <h2>Children</h2>
               <p className="breadcrumb">Home / Children</p>
             </div>
-            <div className="header-back-button" onClick={() => navigate(-1)}><MdArrowBack size={20} /></div>
+            <div className="header-back-button" onClick={() => navigate("/Home/Dashboard")}><MdArrowBack size={20} /></div>
           </div>
 
           <div className="table-controls">
