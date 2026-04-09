@@ -115,7 +115,7 @@
 .table-header-bar-addParent {
   background: var(--header-grey);
   color: white;
-  padding: 12px 20px;
+  padding: 15px 20px;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;

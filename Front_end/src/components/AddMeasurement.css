@@ -112,7 +112,7 @@ body {
 .breadcrumb-banner {
   background-color: var(--breadcrumb-grey);
   color: white;
-  padding: 18px 25px;
+  padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 25px;
   display: flex;

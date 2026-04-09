@@ -10,7 +10,7 @@ import Dashboard from './components/Dashboard'
 import ChildrenList from './components/ChildrenList'
 import AddChild from './components/AddChild'
 import AddMeasurement from './components/AddMeasurement'
-
+import AddVaccination from './components/AddVaccination'
 
 const route = () => {
   return (
@@ -26,6 +26,7 @@ const route = () => {
         <Route path="/Home/children" element={<ChildrenList />} />
         <Route path="/Home/children/add_child" element={<AddChild />} />
         <Route path="/Home/children/:childId/add_measurement" element={<AddMeasurement />} />
+        <Route path="/Home/children/:childId/add_vaccination" element={<AddVaccination />} />
 
       </Routes>
     </BrowserRouter>

@@ -32,6 +32,11 @@ module.exports = (sequelize) => {
       foreignKey: 'child_id',
       as: 'measurements'
     });
+
+    ChildrenProfile.hasMany(models.Vaccination, {
+      foreignKey: 'child_id',
+      as: 'vaccinations'
+    });
   };
 
   return ChildrenProfile;

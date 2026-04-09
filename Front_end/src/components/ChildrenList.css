@@ -4,6 +4,7 @@
   --table-cyan: #e1f7f9;
   --active-teal: #16C4AE;
   --girl-pink: rgba(230, 130, 200, 0.911);
+  --vaccination-primary: #22d3ee;
 }
 
 .nav-link {
@@ -56,7 +57,7 @@
   font-family: 'Nunito', sans-serif;
   background: var(--header-grey);
   color: white;
-  padding: 10px 20px;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,8 +98,7 @@
 
 .nurture-table td { 
   padding: 15px 12px; 
-  border-bottom: 1px solid #f1f1f1; 
-  vertical-align: top; 
+  vertical-align: top;
   font-family: 'Nunito', sans-serif;
 }
 
@@ -111,11 +111,11 @@
 .avatar-placeholder-icon { color: #adb5bd; font-size: 18px; }
 .child-details-stack { display: flex; flex-direction: column; }
 .child-name-text { font-weight: 700; color: #333; font-size: 14px; font-family: 'Nunito', sans-serif; }
-.gender-age-text { font-size: 11px; font-weight: 700; margin: 2px 0; font-family: 'Nunito', sans-serif;}
+.gender-age-text { font-size: 11px; font-weight: 700; font-family: 'Nunito', sans-serif;}
 .gender-age-text.girl { color: var(--girl-pink); }
 .gender-age-text.boy { color: skyblue; }
 
-.child-action-row { display: flex; gap: 5px; align-items: center; font-family: 'Nunito', sans-serif;}
+.child-action-row { display: flex; gap: 3px; align-items: center; font-family: 'Nunito', sans-serif;}
 .action-icon { cursor: pointer; font-size: 13px; }
 .icon-analysis { color: #28a745; }   
 .icon-vaccine { color: var(--sidebar-teal); } 
@@ -265,4 +265,210 @@
 
 .sort-select{
   width: fit-content;
+}
+
+.vax-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.vax-modal-container {
+  background: #fff;
+  width: 92%;
+  max-width: 1250px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.vax-modal-header {
+  background: #006b8d;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 5px solid var(--active-teal);
+}
+
+.vax-modal-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.vax-close-btn {
+  background: #fff;
+  border-radius: 50%;
+  color: var(--sidebar-teal);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: min-content;
+  height: min-content;
+  size: 10px;
+}
+
+.vax-scroll-viewport {
+  overflow: auto;
+  max-height: 78vh;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.vax-scroll-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.vax-table {
+  width: 100%;
+}
+
+.vax-table th {
+  background: var(--table-cyan);
+  color: #006b8d;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 14px 10px;
+  border: 1px solid #e0eef2;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.vax-table td {
+  border: 1px solid #e0eef2;
+  padding: 16px 8px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.vax-sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 30;
+  background-color: var(--table-cyan);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+  border: 1px solid #e0eef2;
+}
+
+th.vax-sticky-col {
+  z-index: 40;
+  background-color: var(--table-cyan);
+  border: 1px solid #e0eef2;
+}
+
+.vax-name-cell {
+  color: #333;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left !important;
+  padding-left: 20px !important;
+  width: 220px;
+}
+
+.vax-dose-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.vax-dose-text {
+  font-size: 0.75rem;
+  color: #555;
+  white-space: pre-line;
+  max-width: 100px;
+}
+
+  
+
+.vax-pending-dot::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.vax-date-text {
+  font-size: 0.65rem;
+  color: #777;
+  font-weight: 500;
+}
+
+
+.vax-dose-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 5px;
+  min-height: 80px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.done-bg {
+  background-color: #fcfcfc; 
+}
+
+.pending-bg {
+  background-color: #fcfcfc;
+}
+
+.vax-dose-text {
+  font-size: 0.8rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.vax-status-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.vax-status-indicator.done {
+  background-color: #28a745; 
+}
+
+.vax-status-indicator.pending {
+  background-color: #dc3545; 
+}
+
+.vax-date-text {
+  font-size: 0.65rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.vax-table td {
+  border: 1px solid #e0eef2;
+  padding: 0; 
+  vertical-align: middle;
+}
+
+.vax-table-state {
+  padding: 18px !important;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #fff;
 }

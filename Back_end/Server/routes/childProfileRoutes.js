@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { ChildrenProfile, MedicalMeasurement } = require('../models');
+const { getChildById } = require('../controllers/childController');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -43,6 +44,8 @@ router.get('/list', async (req, res) => {
             include: [{
                 model: MedicalMeasurement,
                 as: 'measurements',
+                attributes: ['weight', 'length', 'head_circumference', 'bmi', 'measurement_date'],
+                separate: true,
                 limit: 1,
                 order: [['measurement_date', 'DESC']]
             }],
@@ -54,22 +57,7 @@ router.get('/list', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
-    try {
-        const child = await ChildrenProfile.findByPk(req.params.id, {
-            include: [{
-                model: MedicalMeasurement,
-                as: 'measurements',
-                limit: 1,
-                order: [['measurement_date', 'DESC']]
-            }]
-        });
-        if (!child) return res.status(404).json({ message: 'Child not found' });
-        res.status(200).json(child);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get('/:id', getChildById);
 
 router.post('/measurements/add', async (req, res) => {
     try {

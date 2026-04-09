@@ -37,9 +37,11 @@ exports.getChildrenList = async (req, res) => {
         model: MedicalMeasurement,
         as: 'measurements',
         attributes: ['weight', 'length', 'head_circumference', 'bmi', 'measurement_date'],
+        separate: true,
         limit: 1,
         order: [['measurement_date', 'DESC']]
-      }]
+      }],
+      order: [['createdAt', 'DESC']]
     });
     res.status(200).json(children);
   } catch (error) {
@@ -54,6 +56,8 @@ exports.getChildById = async (req, res) => {
       include: [{
         model: MedicalMeasurement,
         as: 'measurements',
+        attributes: ['weight', 'length', 'head_circumference', 'bmi', 'measurement_date'],
+        separate: true,
         limit: 1,
         order: [['measurement_date', 'DESC']]
       }]

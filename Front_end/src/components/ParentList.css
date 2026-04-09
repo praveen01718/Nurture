@@ -134,7 +134,7 @@ body {
   font-family: 'Nunito', sans-serif;
   background: var(--header-grey);
   color: white;
-  padding: 10px 20px;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;

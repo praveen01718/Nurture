@@ -8,6 +8,7 @@ const db = require('./models');
 const parentRoutes = require('./routes/parentRoutes');
 const childProfileRoutes = require('./routes/childProfileRoutes');
 const measurementRoutes = require('./routes/measurementRoutes');
+const vaccinationRoutes = require('./routes/vaccinationRoutes');
 const { 
     login, 
     validateAndSendOTP, 
@@ -41,6 +42,7 @@ app.post('/api/auth/update-password', updatePassword);
 app.use('/api/parents', parentRoutes);
 app.use('/api/Child-datas', childProfileRoutes);
 app.use('/api/medical-measurements', measurementRoutes);
+app.use('/api/vaccinations', vaccinationRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
