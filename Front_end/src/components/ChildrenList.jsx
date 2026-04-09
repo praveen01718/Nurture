@@ -59,7 +59,7 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
       <div className="vax-modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="vax-modal-header">
           <h3>{childName}'s Vaccination</h3>
-          <button className="vax-close-btn" onClick={onClose}><FaTimes size={16} /></button>
+          <button className="vax-close-btn" onClick={onClose}><FaTimes/></button>
         </div>
         <div className="vax-scroll-viewport">
           <table className="vax-table">

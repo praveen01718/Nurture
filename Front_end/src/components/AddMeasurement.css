@@ -268,14 +268,13 @@ body {
 
 .addon-text {
   background: #f8f9fa;
-  padding: 0 15px;
+  padding: 0 45px;
   display: flex;
   font-weight: 600;
   color: #777;
   border-left: 1px solid var(--border-color);
   min-width: 60px;
   font-size: 12px;
-  padding-left: 50px;
   justify-content: center;
   align-items: center;
 }

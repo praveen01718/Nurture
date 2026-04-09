@@ -87,7 +87,6 @@
 }
 
 .nurture-table th { 
-  background: var(--table-cyan); 
   color: var(--sidebar-teal); 
   text-align: left; 
   padding: 12px; 
@@ -282,8 +281,7 @@
 
 .vax-modal-container {
   background: #fff;
-  width: 92%;
-  max-width: 1250px;
+  width: 75%;
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
@@ -293,11 +291,11 @@
 
 .vax-modal-header {
   background: #006b8d;
-  padding: 10px 20px;
+  padding: 5px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 5px solid var(--active-teal);
+  border-top: 3px solid var(--active-teal);
 }
 
 .vax-modal-header h3 {
@@ -308,20 +306,24 @@
 }
 
 .vax-close-btn {
-  background: #fff;
+  width: 24px;
+  height: 24px;
+  background-color: white;
   border-radius: 50%;
   color: var(--sidebar-teal);
   cursor: pointer;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  width: min-content;
-  height: min-content;
-  size: 10px;
+  justify-content: center;
+  border: none;
+  padding: 0;
 }
+
 
 .vax-scroll-viewport {
   overflow: auto;
-  max-height: 78vh;
+  max-height: 75vh;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -331,24 +333,27 @@
 }
 
 .vax-table {
-  width: 100%;
+  width: 130%;
+  margin: 10px;
 }
 
 .vax-table th {
+  position: sticky;
   background: var(--table-cyan);
   color: #006b8d;
-  font-weight: 500;
+  font-weight: bold;
   font-size: 0.85rem;
-  padding: 14px 10px;
-  border: 1px solid #e0eef2;
+  padding: 10px 10px;
+  border: 1px solid var(--sidebar-teal);
+  border-top: 1px solid var(--sidebar-teal);
+  border-bottom: 2px solid var(--header-grey);
   text-align: center;
   position: sticky;
-  top: 0;
-  z-index: 20;
+  z-index: 30;
 }
 
 .vax-table td {
-  border: 1px solid #e0eef2;
+  border: 1px solid #b8b3b3d3;
   padding: 16px 8px;
   vertical-align: middle;
   text-align: center;
@@ -356,33 +361,24 @@
 
 .vax-sticky-col {
   position: sticky;
-  left: 0;
   z-index: 30;
   background-color: var(--table-cyan);
-  box-shadow: 2px 0 5px rgba(0,0,0,0.02);
-  border: 1px solid #e0eef2;
 }
 
 th.vax-sticky-col {
-  z-index: 40;
-  background-color: var(--table-cyan);
-  border: 1px solid #e0eef2;
+  position: sticky;
+  z-index: 30;
+  border: 1px solid var(--sidebar-teal);
+  border-bottom: 2px solid var(--header-grey);
 }
 
 .vax-name-cell {
   color: #333;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: bold;
   text-align: left !important;
   padding-left: 20px !important;
   width: 220px;
-}
-
-.vax-dose-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
 }
 
 .vax-dose-text {
@@ -392,20 +388,18 @@ th.vax-sticky-col {
   max-width: 100px;
 }
 
-  
-
 .vax-pending-dot::after {
   content: '';
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   background: #fff;
   border-radius: 50%;
 }
 
 .vax-date-text {
   font-size: 0.65rem;
-  color: #777;
-  font-weight: 500;
+  color: black;
+  font-weight: semi-bold;
 }
 
 
@@ -413,11 +407,11 @@ th.vax-sticky-col {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 6px;
   justify-content: center;
   padding: 10px 5px;
-  min-height: 80px;
+  min-height: 90px;
   width: 100%;
-  border-radius: 4px;
 }
 
 .done-bg {
@@ -430,7 +424,7 @@ th.vax-sticky-col {
 
 .vax-dose-text {
   font-size: 0.8rem;
-  color: #333;
+  color: #555;
   margin-bottom: 4px;
 }
 
@@ -453,14 +447,9 @@ th.vax-sticky-col {
   background-color: #dc3545; 
 }
 
-.vax-date-text {
-  font-size: 0.65rem;
-  color: #888;
-  margin-top: 2px;
-}
+
 
 .vax-table td {
-  border: 1px solid #e0eef2;
   padding: 0; 
   vertical-align: middle;
 }
