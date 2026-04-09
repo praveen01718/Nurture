@@ -54,7 +54,7 @@ const normalizeValue = (value) => value?.trim().toLowerCase() || "";
 const getAgeSortValue = (ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
 
-  if (normalizedAge === "at birth") {
+  if (normalizedAge === "birth" || normalizedAge === "at birth") {
     return 0;
   }
 
@@ -72,7 +72,7 @@ const addDurationToDate = (baseDate, ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
   const numericValue = Number.parseInt(normalizedAge, 10);
 
-  if (normalizedAge === "at birth") {
+  if (normalizedAge === "birth" || normalizedAge === "at birth") {
     return comparisonDate;
   }
 
@@ -644,7 +644,7 @@ function AddVaccination() {
                             onChange={(event) => handleEntryChange(entryIndex, event)}
                             className={entryErrors.vaccinationType ? "input-error" : ""}
                           >
-                            <option value="">Select</option>
+                            <option value="">-- Select Vaccination Type --</option>
                             {vaccinationTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
                           </select>
                           {entryErrors.vaccinationType && <span className="error-msg">{entryErrors.vaccinationType}</span>}
@@ -701,7 +701,7 @@ function AddVaccination() {
                         </div>
                         {entryErrors.doseLabel && <span className="error-msg">{entryErrors.doseLabel}</span>}
                         {!entryErrors.doseLabel && duplicateVaccination && (
-                          <span className="error-msg">Vaccine already injected</span>
+                          <span className="error-msg">Already Vaccined</span>
                         )}
                         {!entryErrors.doseLabel && !duplicateVaccination && duplicateEntry && (
                           <span className="error-msg">This vaccination is already added.</span>

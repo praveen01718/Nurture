@@ -157,6 +157,7 @@ body, html {
   align-items: center;
   margin: 20px;
   border-radius: 8px;
+  border-bottom: 3px solid #555;
 }
 
 .header-titles h2 {

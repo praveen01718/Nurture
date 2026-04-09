@@ -1,6 +1,6 @@
 export const VACCINATION_SCHEDULE = [
   {
-    age: "At Birth",
+    age: "Birth",
     vaccines: [
       { name: "BCG", type: "BCG", dose: "0th" },
       { name: "Polio", type: "OPV", dose: "0th" },

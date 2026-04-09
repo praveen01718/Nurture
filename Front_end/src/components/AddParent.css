@@ -120,6 +120,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 3px solid #555;
 }
 
 .header-titles h2 { font-size: 16px; margin: 0; font-weight: 500; font-family: 'Nunito', sans-serif;}
