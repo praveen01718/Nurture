@@ -4,13 +4,14 @@ exports.addVaccination = async (req, res) => {
   try {
     const childId = Number(req.body.child_id);
     const vaccinationName = req.body.vaccination_name?.trim();
+    const vaccinationType = req.body.vaccination_type?.trim();
     const ageLabel = req.body.age_label?.trim();
     const doseLabel = req.body.dose_label?.trim();
     const vaccinationDate = req.body.vaccination_date;
 
-    if (!Number.isInteger(childId) || childId <= 0 || !vaccinationName || !ageLabel || !doseLabel || !vaccinationDate) {
+    if (!Number.isInteger(childId) || childId <= 0 || !vaccinationName || !vaccinationType || !ageLabel || !doseLabel || !vaccinationDate) {
       return res.status(400).json({
-        message: 'Missing required fields: child_id, vaccination_name, age_label, dose_label, and vaccination_date are mandatory.'
+        message: 'Missing required fields: child_id, vaccination_name, vaccination_type, age_label, dose_label, and vaccination_date are mandatory.'
       });
     }
 
@@ -36,25 +37,31 @@ exports.addVaccination = async (req, res) => {
       where: {
         child_id: childId,
         vaccination_name: vaccinationName,
-        age_label: ageLabel,
+        vaccination_type: vaccinationType,
         dose_label: doseLabel
       }
     });
 
-    if (existingVaccination) {
-      const updatedVaccination = await existingVaccination.update({
-        vaccination_date: vaccinationDate
-      });
+    const legacyVaccination = existingVaccination
+      ? null
+      : await Vaccination.findOne({
+          where: {
+            child_id: childId,
+            vaccination_name: vaccinationName,
+            dose_label: doseLabel
+          }
+        });
 
-      return res.status(200).json({
-        message: 'Vaccination updated successfully',
-        data: updatedVaccination
+    if (existingVaccination || legacyVaccination) {
+      return res.status(409).json({
+        message: 'Vaccine already injected'
       });
     }
 
     const vaccination = await Vaccination.create({
       child_id: childId,
       vaccination_name: vaccinationName,
+      vaccination_type: vaccinationType,
       age_label: ageLabel,
       dose_label: doseLabel,
       vaccination_date: vaccinationDate

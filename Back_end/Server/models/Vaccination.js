@@ -10,6 +10,11 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    vaccination_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
     age_label: {
       type: DataTypes.STRING,
       allowNull: false

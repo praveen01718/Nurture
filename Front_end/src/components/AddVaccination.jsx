@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/nurture-logo.png";
@@ -7,38 +7,61 @@ import {
   FaThLarge, FaUserFriends, FaChild, FaUserMd, FaCalendarAlt,
   FaSignOutAlt, FaBell, FaHome, FaUser, FaArrowLeft, FaCheckDouble, FaPlus
 } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
 import { MdArrowBack } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-import { VACCINATION_SCHEDULE_DATA } from "../constants/vaccinationSchedule";
+import {
+  VACCINATION_SCHEDULE_DATA,
+  getVaccinationTypeOptions as getScheduleTypeOptions
+} from "../constants/vaccinationSchedule";
 import "./AddVaccination.css";
 
 const getTodayDate = () => new Date().toISOString().split("T")[0];
 
 const formatDateForInput = (dateValue) => {
-  if (!dateValue) return "";
+  if (!dateValue) {
+    return "";
+  }
+
   const parsedDate = new Date(dateValue);
   return Number.isNaN(parsedDate.getTime()) ? "" : parsedDate.toISOString().split("T")[0];
 };
 
-const createDefaultForm = () => ({
-  vaccinationDate: getTodayDate(),
+let vaccinationEntrySeed = 0;
+
+const createVaccinationEntry = (initialValues = {}) => ({
+  id: vaccinationEntrySeed += 1,
+  vaccinationDate: initialValues.vaccinationDate || getTodayDate(),
   age: "",
   vaccinationName: "",
   vaccinationType: "",
-  doseLabel: ""
+  doseLabel: "",
+  ...initialValues
+});
+
+const createDefaultForm = () => ({
+  entries: [createVaccinationEntry()]
+});
+
+const createDefaultErrors = (entryCount = 1) => ({
+  entries: Array.from({ length: entryCount }, () => ({}))
 });
 
 const DOSE_OPTIONS = ["0th", "1st", "2nd", "3rd", "Booster"];
 
-const getAgeSortValue = (ageLabel) => {
-  if (ageLabel === "Birth") return 0;
+const normalizeValue = (value) => value?.trim().toLowerCase() || "";
 
+const getAgeSortValue = (ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
+
+  if (normalizedAge === "at birth") {
+    return 0;
+  }
+
   const numericValue = Number.parseInt(normalizedAge, 10);
 
   if (normalizedAge.includes("week")) return 100 + numericValue;
   if (normalizedAge.includes("month")) return 200 + numericValue;
-  if (normalizedAge === "more than 2 years") return 400;
   if (normalizedAge.includes("year")) return 300 + numericValue;
 
   return 999;
@@ -49,7 +72,7 @@ const addDurationToDate = (baseDate, ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
   const numericValue = Number.parseInt(normalizedAge, 10);
 
-  if (ageLabel === "Birth") {
+  if (normalizedAge === "at birth") {
     return comparisonDate;
   }
 
@@ -83,75 +106,123 @@ const getEligibleAgeOptions = (dobString, vaccinationDateString, allAgeLabels) =
     return [];
   }
 
-  return allAgeLabels.filter((ageLabel) => {
-    if (ageLabel === "more than 2 years") {
-      const secondBirthday = addDurationToDate(dob, "2 years");
-      return vaccinationDate > secondBirthday;
-    }
-
-    const milestoneDate = addDurationToDate(dob, ageLabel);
-    return vaccinationDate >= milestoneDate;
-  });
+  return allAgeLabels.filter((ageLabel) => vaccinationDate >= addDurationToDate(dob, ageLabel));
 };
 
 const calculateAge = (dobString) => {
   if (!dobString) return "--";
+
   const dob = new Date(dobString);
   const today = new Date();
   let years = today.getFullYear() - dob.getFullYear();
   let months = today.getMonth() - dob.getMonth();
+
   if (months < 0 || (months === 0 && today.getDate() < dob.getDate())) {
     years -= 1;
     months += 12;
   }
+
   return years < 1 ? `${months} Mos` : `${years} Yrs`;
 };
 
-const getVaccinationTypeOptions = (vaccinationName) => {
-  const selectedVaccination = VACCINATION_SCHEDULE_DATA.find(
-    (item) => item.vaccineName === vaccinationName
-  );
-  const typeValue = selectedVaccination?.types ?? selectedVaccination?.type;
-  if (Array.isArray(typeValue)) return typeValue.filter(Boolean);
-  if (typeof typeValue === "string" && typeValue.trim()) return [typeValue.trim()];
-  return [];
-};
+const getUniqueValues = (values) => [...new Set(values.filter(Boolean))];
+
+const getEntryKey = (entry) => [
+  normalizeValue(entry.vaccinationName),
+  normalizeValue(entry.vaccinationType),
+  normalizeValue(entry.doseLabel)
+].join("::");
 
 function AddVaccination() {
   const navigate = useNavigate();
   const { childId } = useParams();
+
   const [childData, setChildData] = useState(null);
   const [existingVaccinations, setExistingVaccinations] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState(createDefaultForm);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState(createDefaultErrors);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
-  const [customDoseOptions, setCustomDoseOptions] = useState([]);
 
-  const allAgeOptions = [...new Set(
-    VACCINATION_SCHEDULE_DATA.flatMap((item) => item.schedule.map((dose) => dose.age))
-  )].sort((leftAge, rightAge) => getAgeSortValue(leftAge) - getAgeSortValue(rightAge));
-
-  const eligibleAgeOptions = getEligibleAgeOptions(
-    childData?.dob,
-    formValues.vaccinationDate,
-    allAgeOptions
+  const allAgeOptions = useMemo(
+    () =>
+      getUniqueValues(
+        VACCINATION_SCHEDULE_DATA.flatMap((item) => item.schedule.map((dose) => dose.age))
+      ).sort((leftAge, rightAge) => getAgeSortValue(leftAge) - getAgeSortValue(rightAge)),
+    []
   );
 
-  const filteredVaccineNames = VACCINATION_SCHEDULE_DATA
-    .filter((item) => item.schedule.some((dose) => dose.age === formValues.age))
-    .map((item) => item.vaccineName);
-
-  const manualDoseOptions = [...new Set([...DOSE_OPTIONS, ...customDoseOptions])];
-
-  const vaccinationTypeOptions = getVaccinationTypeOptions(formValues.vaccinationName);
-  const hasDuplicateVaccination = existingVaccinations.some(
-    (vaccination) =>
-      vaccination.vaccination_name === formValues.vaccinationName &&
-      vaccination.dose_label === formValues.doseLabel
+  const allVaccinationNames = useMemo(
+    () =>
+      getUniqueValues(
+        VACCINATION_SCHEDULE_DATA.map((item) => item.vaccineName)
+      ).sort((leftName, rightName) => leftName.localeCompare(rightName)),
+    []
   );
+
+  const getEligibleAgeOptionsForEntry = (vaccinationDate) =>
+    getEligibleAgeOptions(childData?.dob, vaccinationDate, allAgeOptions);
+
+  const getVaccinationTypeOptions = (entry) => {
+    if (!entry.vaccinationName) {
+      return [];
+    }
+
+    const ageBasedTypeOptions = getScheduleTypeOptions(entry.vaccinationName, entry.age);
+
+    return ageBasedTypeOptions.length > 0
+      ? ageBasedTypeOptions
+      : getScheduleTypeOptions(entry.vaccinationName);
+  };
+
+  const getManualDoseOptions = () => DOSE_OPTIONS;
+
+  const isEntryCompleteForDuplicateCheck = (entry) => {
+    const requiresVaccinationType = getVaccinationTypeOptions(entry).length > 0;
+
+    if (!entry.age || !entry.vaccinationName || !entry.doseLabel) {
+      return false;
+    }
+
+    if (requiresVaccinationType && !entry.vaccinationType) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const hasDuplicateVaccination = (entry) => {
+    if (!isEntryCompleteForDuplicateCheck(entry)) {
+      return false;
+    }
+
+    return existingVaccinations.some((vaccination) => {
+      const recordType = vaccination.vaccination_type || "";
+      const selectedType = entry.vaccinationType || "";
+
+      return (
+        normalizeValue(vaccination.vaccination_name) === normalizeValue(entry.vaccinationName) &&
+        (!recordType || !selectedType || normalizeValue(recordType) === normalizeValue(selectedType)) &&
+        normalizeValue(vaccination.dose_label) === normalizeValue(entry.doseLabel)
+      );
+    });
+  };
+
+  const hasDuplicateEntry = (entryIndex) => {
+    const currentEntry = formValues.entries[entryIndex];
+
+    if (!currentEntry || !isEntryCompleteForDuplicateCheck(currentEntry)) {
+      return false;
+    }
+
+    return formValues.entries.some((entry, index) => (
+      index !== entryIndex &&
+      isEntryCompleteForDuplicateCheck(entry) &&
+      getEntryKey(entry) === getEntryKey(currentEntry)
+    ));
+  };
 
   useEffect(() => {
     const fetchVaccinationPageData = async () => {
@@ -171,96 +242,244 @@ function AddVaccination() {
       }
     };
 
-    if (childId) fetchVaccinationPageData();
+    if (childId) {
+      fetchVaccinationPageData();
+    }
   }, [childId]);
 
   useEffect(() => {
-    if (formValues.age && !eligibleAgeOptions.includes(formValues.age)) {
-      setFormValues((prev) => ({
-        ...prev,
-        age: "",
-        vaccinationName: "",
-        vaccinationType: "",
-        doseLabel: ""
-      }));
-    }
-  }, [eligibleAgeOptions, formValues.age]);
+    setFormValues((prev) => {
+      let hasChanges = false;
+
+      const nextEntries = prev.entries.map((entry) => {
+        const eligibleAgeOptions = getEligibleAgeOptionsForEntry(entry.vaccinationDate);
+
+        if (entry.age && !eligibleAgeOptions.includes(entry.age)) {
+          hasChanges = true;
+
+          return {
+            ...entry,
+            age: "",
+            vaccinationName: "",
+            vaccinationType: "",
+            doseLabel: ""
+          };
+        }
+
+        return entry;
+      });
+
+      return hasChanges ? { ...prev, entries: nextEntries } : prev;
+    });
+  }, [allAgeOptions, childData?.dob]);
 
   const showPageAlert = (message, type, navigateAfter = false) => {
     setAlertMessage(message);
     setAlertType(type);
     setShowAlert(true);
+
     setTimeout(() => {
       setShowAlert(false);
-      if (navigateAfter) navigate("/Home/children");
+
+      if (navigateAfter) {
+        navigate("/Home/children");
+      }
     }, navigateAfter ? 1500 : 3000);
   };
 
-  const validateForm = () => {
-    const nextErrors = {};
-    if (!formValues.vaccinationDate) nextErrors.vaccinationDate = "Field is Required";
-    if (!formValues.age) nextErrors.age = "Field is Required";
-    if (!formValues.vaccinationName) nextErrors.vaccinationName = "Field is Required";
-    if (vaccinationTypeOptions.length > 0 && !formValues.vaccinationType) {
-      nextErrors.vaccinationType = "Field is Required";
+  const getEntryValidationErrors = (entry) => {
+    const entryErrors = {};
+    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+
+    if (!entry.vaccinationDate) entryErrors.vaccinationDate = "Field is Required";
+    if (!entry.age) entryErrors.age = "Field is Required";
+    if (!entry.vaccinationName) entryErrors.vaccinationName = "Field is Required";
+    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
+      entryErrors.vaccinationType = "Field is Required";
     }
-    if (!formValues.doseLabel) nextErrors.doseLabel = "Field is Required";
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0 && !hasDuplicateVaccination;
+    if (!entry.doseLabel) entryErrors.doseLabel = "Field is Required";
+
+    return entryErrors;
   };
 
-  const handleChange = ({ target: { name, value } }) => {
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    if (name === "vaccinationDate") {
-      setFormValues((prev) => ({
-        ...prev,
-        vaccinationDate: value,
-        age: "",
-        vaccinationName: "",
-        vaccinationType: "",
-        doseLabel: ""
-      }));
-      setErrors((prev) => ({
-        ...prev,
-        vaccinationDate: "",
-        age: "",
-        vaccinationName: "",
-        vaccinationType: "",
-        doseLabel: ""
-      }));
+  const validateForm = () => {
+    const nextErrors = {
+      entries: formValues.entries.map((entry) => getEntryValidationErrors(entry))
+    };
+
+    const hasFieldErrors = nextErrors.entries.some((entryErrors) => Object.keys(entryErrors).length > 0);
+
+    const hasDuplicateSelections = formValues.entries.some(
+      (entry, index) => hasDuplicateVaccination(entry) || hasDuplicateEntry(index)
+    );
+
+    setErrors(nextErrors);
+    return !hasFieldErrors && !hasDuplicateSelections;
+  };
+
+  const handleEntryChange = (entryIndex, { target: { name, value } }) => {
+    setErrors((prev) => ({
+      ...prev,
+      entries: (prev.entries || []).map((entryErrors, index) => {
+        if (index !== entryIndex) {
+          return entryErrors;
+        }
+
+        const nextEntryErrors = { ...entryErrors };
+        delete nextEntryErrors[name];
+
+        if (name === "vaccinationDate") {
+          delete nextEntryErrors.age;
+          delete nextEntryErrors.vaccinationName;
+          delete nextEntryErrors.vaccinationType;
+          delete nextEntryErrors.doseLabel;
+        }
+
+        if (name === "age") {
+          delete nextEntryErrors.vaccinationName;
+          delete nextEntryErrors.vaccinationType;
+          delete nextEntryErrors.doseLabel;
+        }
+
+        if (name === "vaccinationName") {
+          delete nextEntryErrors.vaccinationType;
+          delete nextEntryErrors.doseLabel;
+        }
+
+        if (name === "vaccinationType") {
+          delete nextEntryErrors.doseLabel;
+        }
+
+        return nextEntryErrors;
+      })
+    }));
+
+    setFormValues((prev) => ({
+      ...prev,
+      entries: prev.entries.map((entry, index) => {
+        if (index !== entryIndex) {
+          return entry;
+        }
+
+        if (name === "vaccinationDate") {
+          return {
+            ...entry,
+            vaccinationDate: value,
+            age: "",
+            vaccinationName: "",
+            vaccinationType: "",
+            doseLabel: ""
+          };
+        }
+
+        if (name === "age") {
+          return {
+            ...entry,
+            age: value,
+            vaccinationName: "",
+            vaccinationType: "",
+            doseLabel: ""
+          };
+        }
+
+        if (name === "vaccinationName") {
+          const nextTypeOptions = getScheduleTypeOptions(value, entry.age);
+
+          return {
+            ...entry,
+            vaccinationName: value,
+            vaccinationType: nextTypeOptions.length === 1 ? nextTypeOptions[0] : "",
+            doseLabel: ""
+          };
+        }
+
+        if (name === "vaccinationType") {
+          return {
+            ...entry,
+            vaccinationType: value,
+            doseLabel: ""
+          };
+        }
+
+        return { ...entry, [name]: value };
+      })
+    }));
+  };
+
+  const handleAddVaccinationEntry = (entryIndex) => {
+    const currentEntry = formValues.entries[entryIndex];
+    const entryErrors = getEntryValidationErrors(currentEntry);
+    const hasEntryErrors = Object.keys(entryErrors).length > 0;
+    const hasDuplicateSelection =
+      hasDuplicateVaccination(currentEntry) || hasDuplicateEntry(entryIndex);
+
+    setErrors((prev) => ({
+      ...prev,
+      entries: formValues.entries.map((_, index) => (
+        index === entryIndex ? entryErrors : (prev.entries?.[index] || {})
+      ))
+    }));
+
+    if (hasEntryErrors || hasDuplicateSelection) {
       return;
     }
 
-    if (name === "age") {
-      setFormValues((prev) => ({ ...prev, age: value, vaccinationName: "", vaccinationType: "", doseLabel: "" }));
+    setFormValues((prev) => ({
+      ...prev,
+      entries: [
+        ...prev.entries,
+        createVaccinationEntry({
+          vaccinationDate: prev.entries[entryIndex]?.vaccinationDate || getTodayDate(),
+          age: prev.entries[entryIndex]?.age || ""
+        })
+      ]
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      entries: [...(prev.entries || []), {}]
+    }));
+  };
+
+  const handleRemoveVaccinationEntry = (entryIndex) => {
+    if (formValues.entries.length === 1) {
       return;
     }
-    if (name === "vaccinationName") {
-      const typeOptions = getVaccinationTypeOptions(value);
-      setFormValues((prev) => ({
-        ...prev,
-        vaccinationName: value,
-        vaccinationType: typeOptions.length === 1 ? typeOptions[0] : "",
-        doseLabel: ""
-      }));
-      return;
-    }
-    setFormValues((prev) => ({ ...prev, [name]: value }));
+
+    setFormValues((prev) => ({
+      ...prev,
+      entries: prev.entries.filter((_, index) => index !== entryIndex)
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      entries: (prev.entries || []).filter((_, index) => index !== entryIndex)
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
-      const payload = {
-        child_id: Number(childId),
-        vaccination_name: formValues.vaccinationName,
-        age_label: formValues.age,
-        dose_label: formValues.doseLabel,
-        vaccination_date: formValues.vaccinationDate
-      };
-      await axios.post("http://localhost:5000/api/vaccinations/add", payload);
+      for (const entry of formValues.entries) {
+        const payload = {
+          child_id: Number(childId),
+          vaccination_name: entry.vaccinationName,
+          vaccination_type: entry.vaccinationType,
+          age_label: entry.age,
+          dose_label: entry.doseLabel,
+          vaccination_date: entry.vaccinationDate
+        };
+
+        await axios.post("http://localhost:5000/api/vaccinations/add", payload);
+      }
+
       showPageAlert("Vaccination saved successfully !", "success", true);
     } catch {
       showPageAlert("Error saving vaccination.", "error");
@@ -269,29 +488,20 @@ function AddVaccination() {
     }
   };
 
-  const handleAddDoseOption = () => {
-    const enteredDose = window.prompt("Enter the dose label");
-    const trimmedDose = enteredDose?.trim();
-
-    if (!trimmedDose) {
-      return;
-    }
-
-    if (manualDoseOptions.some((dose) => dose.toLowerCase() === trimmedDose.toLowerCase())) {
-      showPageAlert("That dose option already exists.", "error");
-      return;
-    }
-
-    setCustomDoseOptions((prev) => [...prev, trimmedDose]);
-    setFormValues((prev) => ({ ...prev, doseLabel: trimmedDose }));
-    setErrors((prev) => ({ ...prev, doseLabel: "" }));
+  const handleReset = () => {
+    setFormValues(createDefaultForm());
+    setErrors(createDefaultErrors());
   };
 
   const latestMeasurement = childData?.measurements?.[0] || {};
   const displayWeight = childData?.weight ?? latestMeasurement.weight;
   const displayLength = childData?.length ?? latestMeasurement.length;
-  const isBoy = childData?.gender?.toLowerCase().includes("male") || childData?.gender?.toLowerCase().includes("boy");
-  const isGirl = childData?.gender?.toLowerCase().includes("female") || childData?.gender?.toLowerCase().includes("girl");
+  const isBoy =
+    childData?.gender?.toLowerCase().includes("male") ||
+    childData?.gender?.toLowerCase().includes("boy");
+  const isGirl =
+    childData?.gender?.toLowerCase().includes("female") ||
+    childData?.gender?.toLowerCase().includes("girl");
   const genderColor = isBoy ? "#87CEEB" : isGirl ? "#FFC0CB" : "#ccc";
 
   return (
@@ -347,7 +557,7 @@ function AddVaccination() {
                   {childData?.profileImage ? (
                     <img src={`http://localhost:5000/uploads/${childData.profileImage}`} alt="profile" />
                   ) : (
-                    <FaUser style={{ fontSize: "28px" }} />
+                    <FaUser style={{ fontSize: "30px" }} />
                   )}
                 </div>
                 <div>
@@ -366,105 +576,144 @@ function AddVaccination() {
             <hr className="card-divider" />
 
             <form onSubmit={handleSubmit} className="vaccination-form-container">
-              <div className="form-row row-80">
-                <div className="form-field">
-                  <label>Vaccination Date</label>
-                  <input
-                    type="date"
-                    name="vaccinationDate"
-                    value={formValues.vaccinationDate}
-                    min={formatDateForInput(childData?.dob)}
-                    max={getTodayDate()}
-                    onChange={handleChange}
-                    className={errors.vaccinationDate ? "input-error" : ""}
-                  />
-                  {errors.vaccinationDate && <span className="error-msg">{errors.vaccinationDate}</span>}
-                </div>
-                <div className="form-field">
-                  <label>Age</label>
-                  <select
-                    name="age"
-                    value={formValues.age}
-                    onChange={handleChange}
-                    disabled={eligibleAgeOptions.length === 0}
-                    className={errors.age ? "input-error" : ""}
-                  >
-                    <option value="">-- Select Age --</option>
-                    {eligibleAgeOptions.map(age => <option key={age} value={age}>{age}</option>)}
-                  </select>
-                  {errors.age && <span className="error-msg">{errors.age}</span>}
-                </div>
-              </div>
+              {formValues.entries.map((entry, entryIndex) => {
+                const entryErrors = errors.entries?.[entryIndex] || {};
+                const eligibleAgeOptions = getEligibleAgeOptionsForEntry(entry.vaccinationDate);
+                const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+                const manualDoseOptions = getManualDoseOptions();
+                const duplicateVaccination = hasDuplicateVaccination(entry);
+                const duplicateEntry = hasDuplicateEntry(entryIndex);
+                const isLastEntry = entryIndex === formValues.entries.length - 1;
 
-              <div className="form-row row-60-40">
-                <div className="form-field">
-                  <label>Vaccination Name</label>
-                  <select
-                    name="vaccinationName"
-                    value={formValues.vaccinationName}
-                    onChange={handleChange}
-                    disabled={!formValues.age}
-                    className={errors.vaccinationName ? "input-error" : ""}
+                return (
+                  <div
+                    key={entry.id}
+                    className={`vaccination-entry-block ${entryIndex > 0 ? "additional-entry" : ""}`}
                   >
-                    <option value="">-- Select Vaccination Name --</option>
-                    {filteredVaccineNames.map(name => <option key={name} value={name}>{name}</option>)}
-                  </select>
-                  {errors.vaccinationName && <span className="error-msg">{errors.vaccinationName}</span>}
-                  {!errors.vaccinationName && hasDuplicateVaccination && (
-                    <span className="error-msg">Vaccine already injected</span>
-                  )}
-                </div>
-                {formValues.vaccinationName && vaccinationTypeOptions.length > 0 && (
-                  <div className="form-field">
-                    <label>Vaccination Type</label>
-                    <select
-                      name="vaccinationType"
-                      value={formValues.vaccinationType}
-                      onChange={handleChange}
-                      className={errors.vaccinationType ? "input-error" : ""}
-                    >
-                      <option value="">Select</option>
-                      {vaccinationTypeOptions.map(type => <option key={type} value={type}>{type}</option>)}
-                    </select>
-                    {errors.vaccinationType && <span className="error-msg">{errors.vaccinationType}</span>}
-                  </div>
-                )}
-              </div>
+                    <div className="form-row row-70">
+                      <div className="form-field">
+                        <label>Vaccination Date</label>
+                        <input
+                          type="date"
+                          name="vaccinationDate"
+                          value={entry.vaccinationDate}
+                          min={formatDateForInput(childData?.dob)}
+                          max={getTodayDate()}
+                          onChange={(event) => handleEntryChange(entryIndex, event)}
+                          className={entryErrors.vaccinationDate ? "input-error" : ""}
+                        />
+                        {entryErrors.vaccinationDate && <span className="error-msg">{entryErrors.vaccinationDate}</span>}
+                      </div>
+                      <div className="form-field">
+                        <label>Age</label>
+                        <select
+                          name="age"
+                          value={entry.age}
+                          onChange={(event) => handleEntryChange(entryIndex, event)}
+                          disabled={eligibleAgeOptions.length === 0}
+                          className={entryErrors.age ? "input-error" : ""}
+                        >
+                          <option value="">-- Select Age --</option>
+                          {eligibleAgeOptions.map((age) => <option key={age} value={age}>{age}</option>)}
+                        </select>
+                        {entryErrors.age && <span className="error-msg">{entryErrors.age}</span>}
+                      </div>
+                    </div>
 
-              <div className="form-row full-width-row">
-                <div className="form-field">
-                  <label>Select Dose</label>
-                  <div className="dose-selection-row">
-                    <div className={`dose-radio-container ${errors.doseLabel ? "input-error" : ""}`}>
-                      {manualDoseOptions.length > 0 ? (
-                        <div className="dose-options-list">
-                          {manualDoseOptions.map(dose => (
-                            <label key={dose} className={`dose-card ${formValues.doseLabel === dose ? "selected" : ""}`}>
-                              <input
-                                type="radio"
-                                name="doseLabel"
-                                value={dose}
-                                checked={formValues.doseLabel === dose}
-                                onChange={handleChange}
-                              />
-                              <span>{dose}</span>
-                            </label>
-                          ))}
+                    <div className="form-row row-60-40">
+                      <div className="form-field">
+                        <label>Vaccination Name</label>
+                        <select
+                          name="vaccinationName"
+                          value={entry.vaccinationName}
+                          onChange={(event) => handleEntryChange(entryIndex, event)}
+                          disabled={!entry.age}
+                          className={entryErrors.vaccinationName ? "input-error" : ""}
+                        >
+                          <option value="">-- Select Vaccination Name --</option>
+                          {allVaccinationNames.map((name) => <option key={name} value={name}>{name}</option>)}
+                        </select>
+                        {entryErrors.vaccinationName && <span className="error-msg">{entryErrors.vaccinationName}</span>}
+                      </div>
+                      {entry.vaccinationName && vaccinationTypeOptions.length > 0 && (
+                        <div className="form-field">
+                          <label>Vaccination Type</label>
+                          <select
+                            name="vaccinationType"
+                            value={entry.vaccinationType}
+                            onChange={(event) => handleEntryChange(entryIndex, event)}
+                            className={entryErrors.vaccinationType ? "input-error" : ""}
+                          >
+                            <option value="">Select</option>
+                            {vaccinationTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
+                          </select>
+                          {entryErrors.vaccinationType && <span className="error-msg">{entryErrors.vaccinationType}</span>}
                         </div>
-                      ) : (
-                        <span className="vaccination-form-note">Dose options will appear here.</span>
                       )}
                     </div>
-                    <button type="button" className="dose-add-btn" onClick={handleAddDoseOption}>
-                              <FaPlus />
-                    </button>
+
+                    <div className="form-row full-width-row">
+                      <div className="form-field">
+                        <label>Select Dose</label>
+                        <div className="dose-selection-row">
+                          <div className={`dose-radio-container ${entryErrors.doseLabel ? "input-error" : ""}`}>
+                            <div className="dose-options-list">
+                              {manualDoseOptions.map((dose) => (
+                                <label key={dose} className={`dose-card ${entry.doseLabel === dose ? "selected" : ""}`}>
+                                  <input
+                                    type="radio"
+                                    name={`doseSelection-${entry.id}`}
+                                    value={dose}
+                                    checked={entry.doseLabel === dose}
+                                    onChange={() => handleEntryChange(entryIndex, {
+                                      target: {
+                                        name: "doseLabel",
+                                        value: dose
+                                      }
+                                    })}
+                                  />
+                                  <span>{dose}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="dose-action-buttons">
+                            {formValues.entries.length > 1 && (
+                              <button
+                                type="button"
+                                className="dose-remove-btn"
+                                onClick={() => handleRemoveVaccinationEntry(entryIndex)}
+                              >
+                                <RxCross2/>
+                              </button>
+                            )}
+                            
+                            {isLastEntry && (
+                              <button
+                                type="button"
+                                className="dose-add-btn"
+                                onClick={() => handleAddVaccinationEntry(entryIndex)}
+                              >
+                                <FaPlus />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {entryErrors.doseLabel && <span className="error-msg">{entryErrors.doseLabel}</span>}
+                        {!entryErrors.doseLabel && duplicateVaccination && (
+                          <span className="error-msg">Vaccine already injected</span>
+                        )}
+                        {!entryErrors.doseLabel && !duplicateVaccination && duplicateEntry && (
+                          <span className="error-msg">This vaccination is already added.</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  {errors.doseLabel && <span className="error-msg">{errors.doseLabel}</span>}
-                </div>
-              </div>
+                );
+              })}
 
               <div className="measurement-actions">
-                <button type="button" className="btn-reset" onClick={() => setFormValues(createDefaultForm())}>
+                <button type="button" className="btn-reset" onClick={handleReset}>
                   <FaArrowLeft /> Reset
                 </button>
                 <button type="submit" className="btn-submit" disabled={isSubmitting}>

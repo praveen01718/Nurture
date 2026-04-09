@@ -402,6 +402,10 @@ th.vax-sticky-col {
   font-weight: semi-bold;
 }
 
+.vax-dose-list.multiple .vax-dose-card {
+  max-height: 50px;
+  padding: 5px;
+}
 
 .vax-dose-card {
   display: flex;

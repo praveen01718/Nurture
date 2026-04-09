@@ -24,6 +24,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      vaccination_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: ''
+      },
       age_label: {
         type: Sequelize.STRING,
         allowNull: false
@@ -47,7 +52,7 @@ module.exports = {
     });
 
     await queryInterface.addConstraint('Vaccinations', {
-      fields: ['child_id', 'vaccination_name', 'age_label', 'dose_label'],
+      fields: ['child_id', 'vaccination_name', 'vaccination_type', 'age_label', 'dose_label'],
       type: 'unique',
       name: 'vaccinations_child_schedule_unique'
     });

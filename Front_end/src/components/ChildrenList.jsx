@@ -88,17 +88,24 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
                   <tr key={i}>
                     <td className="vax-name-cell vax-sticky-col">{vaccine.name}</td>
                     {VACCINATION_HEADERS.slice(1).map((headerLabel, idx) => {
-                      const dose = vaccine.doses.find((item) => item.age === headerLabel) || null;
+                      const cellDoses = vaccine.doses.filter((item) => item.age === headerLabel);
 
                       return (
                         <td key={idx}>
-                          {dose && (
-                            <div className={`vax-dose-card ${dose.status}-bg`}>
-                              <span className="vax-dose-text">{formatDoseText(dose.label)}</span>
-                              <div className={`vax-status-indicator ${dose.status}`}>
-                                {dose.status === "done" ? <FaCheck size={8} /> : <FaTimes size={8} />}
-                              </div>
-                              {dose.date && <span className="vax-date-text">{dose.date}</span>}
+                          {cellDoses.length > 0 && (
+                            <div className={`vax-dose-list ${cellDoses.length > 1 ? "multiple" : ""}`}>
+                              {cellDoses.map((dose, doseIndex) => (
+                                <div
+                                  key={`${dose.label}-${dose.status}-${dose.date || "no-date"}-${doseIndex}`}
+                                  className={`vax-dose-card ${dose.status}-bg`}
+                                >
+                                  <span className="vax-dose-text">{formatDoseText(dose.label)}</span>
+                                  <div className={`vax-status-indicator ${dose.status}`}>
+                                    {dose.status === "done" ? <FaCheck size={8} /> : <FaTimes size={8} />}
+                                  </div>
+                                  {dose.date && <span className="vax-date-text">{dose.date}</span>}
+                                </div>
+                              ))}
                             </div>
                           )}
                         </td>

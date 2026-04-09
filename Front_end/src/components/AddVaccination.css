@@ -5,17 +5,27 @@
   width: 100%;
 }
 
+.vaccination-form-container .vaccination-entry-block {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vaccination-form-container .vaccination-entry-block.additional-entry {
+  padding-top: 4px;
+}
+
 .vaccination-form-container .form-row {
   display: flex;
   gap: 20px;
   align-items: flex-start;
 }
 
-.vaccination-form-container .row-80 {
-  width: 80%;
+.vaccination-form-container .row-70 {
+  width: 70%;
 }
 
-.vaccination-form-container .row-80 .form-field {
+.vaccination-form-container .row-70 .form-field {
   flex: 1;
 }
 
@@ -74,10 +84,11 @@
   border-radius: 6px;
   background: #f9f9f9;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
-  padding: 0 15px;
-  height: 45px;
+  padding: 10px 15px;
+  max-height: 45px;
+  flex: 1;
 }
 
 .vaccination-form-container .dose-selection-row {
@@ -86,13 +97,35 @@
   gap: 12px;
 }
 
+.vaccination-form-container .dose-action-buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
 .vaccination-form-container .dose-add-btn {
-  width: fit-content;
-  border: none;
+  width: 45px;
+  height: 45px;
   border-radius: 6px;
   border: 1px solid #007c89;
-  color:#007c89 ;
-  font-size: 13px;
+  color: #007c89;
+  background: #fff;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.vaccination-form-container .dose-remove-btn {
+  border: none;
+  border-radius: 6px;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  background: #fff;
+  font-size: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +154,10 @@
 }
 
 .dose-options-list{
-  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  margin-top: 2px;
 }
 
 .measurement-white-card .summary-profile .child-avatar {
@@ -138,7 +174,7 @@
   }
 
 @media (max-width: 992px) {
-  .vaccination-form-container .row-80,
+  .vaccination-form-container .row-70,
   .vaccination-form-container .row-60-40,
   .vaccination-form-container .full-width-row {
     width: 100%;
@@ -155,5 +191,9 @@
 
   .vaccination-form-container .dose-selection-row {
     flex-direction: column;
+  }
+
+  .vaccination-form-container .dose-action-buttons {
+    align-self: flex-start;
   }
 }
