@@ -47,7 +47,10 @@ router.get('/list', async (req, res) => {
                 attributes: ['weight', 'length', 'head_circumference', 'bmi', 'measurement_date'],
                 separate: true,
                 limit: 1,
-                order: [['measurement_date', 'DESC']]
+                order: [
+                    ['measurement_date', 'DESC'],
+                    ['createdAt', 'DESC']
+                ]
             }],
             order: [['createdAt', 'DESC']]
         });

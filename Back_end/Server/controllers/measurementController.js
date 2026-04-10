@@ -23,34 +23,17 @@ exports.addMeasurement = async (req, res) => {
       return res.status(404).json({ message: "Child record not found." });
     }
 
-    // Find the latest measurement for this child
-    const latestMeasurement = await MedicalMeasurement.findOne({
-      where: { child_id },
-      order: [['measurement_date', 'DESC']]
-    });
+    const normalizedMeasurementDate = measurement_date || null;
 
-    let measurement;
-    if (latestMeasurement) {
-      // Update the existing latest measurement
-      measurement = await latestMeasurement.update({
-        weight: parseFloat(weight),
-        length: parseFloat(length),
-        head_circumference: parseFloat(head_circumference) || 0,
-        bmi: parseFloat(bmi),
-        measurement_date,
-        age_type
-      });
-    } else {
-      measurement = await MedicalMeasurement.create({
-        child_id,
-        weight: parseFloat(weight),
-        length: parseFloat(length),
-        head_circumference: parseFloat(head_circumference) || 0,
-        bmi: parseFloat(bmi),
-        measurement_date,
-        age_type
-      });
-    }
+    const measurement = await MedicalMeasurement.create({
+      child_id,
+      weight: parseFloat(weight),
+      length: parseFloat(length),
+      head_circumference: parseFloat(head_circumference) || 0,
+      bmi: parseFloat(bmi),
+      measurement_date: normalizedMeasurementDate,
+      age_type
+    });
 
     res.status(201).json({
       message: "Measurement recorded successfully",
@@ -71,7 +54,10 @@ exports.getMeasurementsByChild = async (req, res) => {
 
     const measurements = await MedicalMeasurement.findAll({
       where: { child_id: childId },
-      order: [['measurement_date', 'DESC']]
+      order: [
+        ['measurement_date', 'DESC'],
+        ['createdAt', 'DESC']
+      ]
     });
 
     res.status(200).json(measurements);

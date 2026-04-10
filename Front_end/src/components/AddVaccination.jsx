@@ -12,7 +12,8 @@ import { MdArrowBack } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import {
   VACCINATION_SCHEDULE_DATA,
-  getVaccinationTypeOptions as getScheduleTypeOptions
+  getVaccinationTypeOptions as getScheduleTypeOptions,
+  getDoseOptionsForVaccination
 } from "../constants/vaccinationSchedule";
 import "./AddVaccination.css";
 
@@ -48,8 +49,17 @@ const createDefaultErrors = (entryCount = 1) => ({
 });
 
 const DOSE_OPTIONS = ["0th", "1st", "2nd", "3rd", "Booster"];
+const DOSE_SORT_ORDER = {
+  "0th": 0,
+  "1st": 1,
+  "2nd": 2,
+  "3rd": 3,
+  Booster: 4
+};
 
 const normalizeValue = (value) => value?.trim().toLowerCase() || "";
+const getDoseSortValue = (doseLabel) => DOSE_SORT_ORDER[doseLabel] ?? Number.MAX_SAFE_INTEGER;
+const getDateKey = (dateValue) => formatDateForInput(dateValue);
 
 const getAgeSortValue = (ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
@@ -127,17 +137,54 @@ const calculateAge = (dobString) => {
 
 const getUniqueValues = (values) => [...new Set(values.filter(Boolean))];
 
+const getMeasurementSortValue = (measurement) => {
+  if (!measurement?.measurement_date) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const parsedDate = new Date(measurement.measurement_date);
+  return Number.isNaN(parsedDate.getTime()) ? Number.NEGATIVE_INFINITY : parsedDate.getTime();
+};
+
+const getLatestMeasurementRecord = (measurements = []) =>
+  measurements.reduce((latestMeasurement, currentMeasurement) => {
+    const latestSortValue = getMeasurementSortValue(latestMeasurement);
+    const currentSortValue = getMeasurementSortValue(currentMeasurement);
+
+    if (currentSortValue > latestSortValue) {
+      return currentMeasurement;
+    }
+
+    return latestMeasurement;
+  }, null);
+
 const getEntryKey = (entry) => [
   normalizeValue(entry.vaccinationName),
   normalizeValue(entry.vaccinationType),
   normalizeValue(entry.doseLabel)
 ].join("::");
 
+const matchesVaccinationSelection = (
+  leftVaccinationName,
+  leftVaccinationType = "",
+  rightVaccinationName,
+  rightVaccinationType = ""
+) => {
+  const normalizedLeftType = normalizeValue(leftVaccinationType);
+  const normalizedRightType = normalizeValue(rightVaccinationType);
+
+  return (
+    normalizeValue(leftVaccinationName) === normalizeValue(rightVaccinationName) &&
+    (!normalizedLeftType || !normalizedRightType || normalizedLeftType === normalizedRightType)
+  );
+};
+
 function AddVaccination() {
   const navigate = useNavigate();
   const { childId } = useParams();
 
   const [childData, setChildData] = useState(null);
+  const [latestMeasurement, setLatestMeasurement] = useState(null);
   const [existingVaccinations, setExistingVaccinations] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState(createDefaultForm);
@@ -177,7 +224,141 @@ function AddVaccination() {
       : getScheduleTypeOptions(entry.vaccinationName);
   };
 
-  const getManualDoseOptions = () => DOSE_OPTIONS;
+  const getDoseOptions = (entry) => {
+    if (!entry.vaccinationName) {
+      return DOSE_OPTIONS;
+    }
+
+    const filteredDoseOptions = getDoseOptionsForVaccination(
+      entry.vaccinationName,
+      "",
+      entry.vaccinationType
+    );
+
+    return filteredDoseOptions.length > 0 ? filteredDoseOptions : DOSE_OPTIONS;
+  };
+
+  const getDoseSequenceError = (entry, entryIndex, entries = formValues.entries) => {
+    if (!entry?.vaccinationName || !entry?.doseLabel) {
+      return "";
+    }
+
+    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+
+    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
+      return "";
+    }
+
+    const orderedDoseOptions = [...getDoseOptionsForVaccination(
+      entry.vaccinationName,
+      "",
+      entry.vaccinationType
+    )].sort((leftDose, rightDose) => getDoseSortValue(leftDose) - getDoseSortValue(rightDose));
+
+    if (orderedDoseOptions.length === 0) {
+      return "";
+    }
+
+    const selectedDoseIndex = orderedDoseOptions.findIndex(
+      (doseLabel) => normalizeValue(doseLabel) === normalizeValue(entry.doseLabel)
+    );
+
+    if (selectedDoseIndex <= 0) {
+      return "";
+    }
+
+    const recordedDoseLabels = new Set(
+      existingVaccinations
+        .filter((vaccination) => matchesVaccinationSelection(
+          vaccination.vaccination_name,
+          vaccination.vaccination_type,
+          entry.vaccinationName,
+          entry.vaccinationType
+        ))
+        .map((vaccination) => normalizeValue(vaccination.dose_label))
+    );
+
+    const pendingDoseLabels = new Set(
+      entries
+        .filter((currentEntry, currentIndex) => (
+          currentIndex !== entryIndex &&
+          currentEntry?.doseLabel &&
+          matchesVaccinationSelection(
+            currentEntry.vaccinationName,
+            currentEntry.vaccinationType,
+            entry.vaccinationName,
+            entry.vaccinationType
+          )
+        ))
+        .map((currentEntry) => normalizeValue(currentEntry.doseLabel))
+    );
+
+    const missingPreviousDose = orderedDoseOptions
+      .slice(0, selectedDoseIndex)
+      .find((doseLabel) => {
+        const normalizedDoseLabel = normalizeValue(doseLabel);
+
+        return (
+          !recordedDoseLabels.has(normalizedDoseLabel) &&
+          !pendingDoseLabels.has(normalizedDoseLabel)
+        );
+      });
+
+    if (!missingPreviousDose) {
+      return "";
+    }
+
+    return `Please vaccine the ${missingPreviousDose} dose before vaccine the ${entry.doseLabel} dose.`;
+  };
+
+  const getSameDayVaccinationError = (entry, entryIndex, entries = formValues.entries) => {
+    if (!entry?.vaccinationDate || !entry?.vaccinationName) {
+      return "";
+    }
+
+    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+
+    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
+      return "";
+    }
+
+    const selectedDateKey = getDateKey(entry.vaccinationDate);
+
+    if (!selectedDateKey) {
+      return "";
+    }
+
+    const hasSavedSameDayVaccination = existingVaccinations.some((vaccination) => (
+      getDateKey(vaccination.vaccination_date) === selectedDateKey &&
+      matchesVaccinationSelection(
+        vaccination.vaccination_name,
+        vaccination.vaccination_type,
+        entry.vaccinationName,
+        entry.vaccinationType
+      )
+    ));
+
+    if (hasSavedSameDayVaccination) {
+      return "This vaccine and type are already added for the selected date.";
+    }
+
+    const hasFormSameDayVaccination = entries.some((currentEntry, currentIndex) => (
+      currentIndex < entryIndex &&
+      getDateKey(currentEntry?.vaccinationDate) === selectedDateKey &&
+      matchesVaccinationSelection(
+        currentEntry?.vaccinationName,
+        currentEntry?.vaccinationType,
+        entry.vaccinationName,
+        entry.vaccinationType
+      )
+    ));
+
+    if (hasFormSameDayVaccination) {
+      return "The same day don't vaccine the same vaccine and type more than once.";
+    }
+
+    return "";
+  };
 
   const isEntryCompleteForDuplicateCheck = (entry) => {
     const requiresVaccinationType = getVaccinationTypeOptions(entry).length > 0;
@@ -218,7 +399,7 @@ function AddVaccination() {
     }
 
     return formValues.entries.some((entry, index) => (
-      index !== entryIndex &&
+      index < entryIndex &&
       isEntryCompleteForDuplicateCheck(entry) &&
       getEntryKey(entry) === getEntryKey(currentEntry)
     ));
@@ -227,13 +408,15 @@ function AddVaccination() {
   useEffect(() => {
     const fetchVaccinationPageData = async () => {
       try {
-        const [childResponse, vaccinationsResponse] = await Promise.all([
+        const [childResponse, vaccinationsResponse, measurementsResponse] = await Promise.all([
           axios.get(`http://localhost:5000/api/Child-datas/${childId}`),
-          axios.get(`http://localhost:5000/api/vaccinations/child/${childId}`)
+          axios.get(`http://localhost:5000/api/vaccinations/child/${childId}`),
+          axios.get(`http://localhost:5000/api/medical-measurements/${childId}`)
         ]);
 
         setChildData(childResponse.data);
         setExistingVaccinations(vaccinationsResponse.data);
+        setLatestMeasurement(getLatestMeasurementRecord(measurementsResponse.data));
       } catch {
         setAlertMessage("Unable to load child details.");
         setAlertType("error");
@@ -287,9 +470,11 @@ function AddVaccination() {
     }, navigateAfter ? 1500 : 3000);
   };
 
-  const getEntryValidationErrors = (entry) => {
+  const getEntryValidationErrors = (entry, entryIndex, entries = formValues.entries) => {
     const entryErrors = {};
     const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+    const doseSequenceError = getDoseSequenceError(entry, entryIndex, entries);
+    const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex, entries);
 
     if (!entry.vaccinationDate) entryErrors.vaccinationDate = "Field is Required";
     if (!entry.age) entryErrors.age = "Field is Required";
@@ -298,13 +483,17 @@ function AddVaccination() {
       entryErrors.vaccinationType = "Field is Required";
     }
     if (!entry.doseLabel) entryErrors.doseLabel = "Field is Required";
+    if (doseSequenceError) entryErrors.doseSequence = doseSequenceError;
+    if (sameDayVaccinationError) entryErrors.sameDayVaccination = sameDayVaccinationError;
 
     return entryErrors;
   };
 
   const validateForm = () => {
     const nextErrors = {
-      entries: formValues.entries.map((entry) => getEntryValidationErrors(entry))
+      entries: formValues.entries.map((entry, index, entries) => (
+        getEntryValidationErrors(entry, index, entries)
+      ))
     };
 
     const hasFieldErrors = nextErrors.entries.some((entryErrors) => Object.keys(entryErrors).length > 0);
@@ -318,15 +507,35 @@ function AddVaccination() {
   };
 
   const handleEntryChange = (entryIndex, { target: { name, value } }) => {
+    const isSharedFieldChange =
+      entryIndex === 0 && (name === "vaccinationDate" || name === "age");
+
     setErrors((prev) => ({
       ...prev,
       entries: (prev.entries || []).map((entryErrors, index) => {
-        if (index !== entryIndex) {
+        const shouldUpdateCurrentEntry = index === entryIndex;
+        const shouldClearSharedEntry = isSharedFieldChange && index !== entryIndex;
+
+        if (!shouldUpdateCurrentEntry && !shouldClearSharedEntry) {
           return entryErrors;
         }
 
         const nextEntryErrors = { ...entryErrors };
+
+        if (shouldClearSharedEntry) {
+          delete nextEntryErrors.vaccinationDate;
+          delete nextEntryErrors.age;
+          delete nextEntryErrors.vaccinationName;
+          delete nextEntryErrors.vaccinationType;
+          delete nextEntryErrors.doseLabel;
+          delete nextEntryErrors.doseSequence;
+          delete nextEntryErrors.sameDayVaccination;
+          return nextEntryErrors;
+        }
+
         delete nextEntryErrors[name];
+        delete nextEntryErrors.doseSequence;
+        delete nextEntryErrors.sameDayVaccination;
 
         if (name === "vaccinationDate") {
           delete nextEntryErrors.age;
@@ -357,6 +566,27 @@ function AddVaccination() {
     setFormValues((prev) => ({
       ...prev,
       entries: prev.entries.map((entry, index) => {
+        if (name === "vaccinationDate" && isSharedFieldChange) {
+          return {
+            ...entry,
+            vaccinationDate: value,
+            age: "",
+            vaccinationName: "",
+            vaccinationType: "",
+            doseLabel: ""
+          };
+        }
+
+        if (name === "age" && isSharedFieldChange) {
+          return {
+            ...entry,
+            age: value,
+            vaccinationName: "",
+            vaccinationType: "",
+            doseLabel: ""
+          };
+        }
+
         if (index !== entryIndex) {
           return entry;
         }
@@ -408,7 +638,7 @@ function AddVaccination() {
 
   const handleAddVaccinationEntry = (entryIndex) => {
     const currentEntry = formValues.entries[entryIndex];
-    const entryErrors = getEntryValidationErrors(currentEntry);
+    const entryErrors = getEntryValidationErrors(currentEntry, entryIndex, formValues.entries);
     const hasEntryErrors = Object.keys(entryErrors).length > 0;
     const hasDuplicateSelection =
       hasDuplicateVaccination(currentEntry) || hasDuplicateEntry(entryIndex);
@@ -424,16 +654,20 @@ function AddVaccination() {
       return;
     }
 
-    setFormValues((prev) => ({
-      ...prev,
-      entries: [
-        ...prev.entries,
-        createVaccinationEntry({
-          vaccinationDate: prev.entries[entryIndex]?.vaccinationDate || getTodayDate(),
-          age: prev.entries[entryIndex]?.age || ""
-        })
-      ]
-    }));
+    setFormValues((prev) => {
+      const sharedEntry = prev.entries[0] || {};
+
+      return {
+        ...prev,
+        entries: [
+          ...prev.entries,
+          createVaccinationEntry({
+            vaccinationDate: sharedEntry.vaccinationDate || getTodayDate(),
+            age: sharedEntry.age || ""
+          })
+        ]
+      };
+    });
 
     setErrors((prev) => ({
       ...prev,
@@ -493,9 +727,11 @@ function AddVaccination() {
     setErrors(createDefaultErrors());
   };
 
-  const latestMeasurement = childData?.measurements?.[0] || {};
-  const displayWeight = childData?.weight ?? latestMeasurement.weight;
-  const displayLength = childData?.length ?? latestMeasurement.length;
+  const fallbackMeasurement = getLatestMeasurementRecord(childData?.measurements || []) || {};
+  const displayWeight =
+    latestMeasurement?.weight ?? childData?.weight ?? fallbackMeasurement.weight;
+  const displayLength =
+    latestMeasurement?.length ?? childData?.length ?? fallbackMeasurement.length;
   const isBoy =
     childData?.gender?.toLowerCase().includes("male") ||
     childData?.gender?.toLowerCase().includes("boy");
@@ -580,46 +816,50 @@ function AddVaccination() {
                 const entryErrors = errors.entries?.[entryIndex] || {};
                 const eligibleAgeOptions = getEligibleAgeOptionsForEntry(entry.vaccinationDate);
                 const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
-                const manualDoseOptions = getManualDoseOptions();
+                const doseOptions = getDoseOptions(entry);
+                const doseSequenceError = getDoseSequenceError(entry, entryIndex);
+                const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex);
                 const duplicateVaccination = hasDuplicateVaccination(entry);
                 const duplicateEntry = hasDuplicateEntry(entryIndex);
                 const isLastEntry = entryIndex === formValues.entries.length - 1;
+                const isAdditionalEntry = entryIndex > 0;
 
                 return (
                   <div
                     key={entry.id}
-                    className={`vaccination-entry-block ${entryIndex > 0 ? "additional-entry" : ""}`}
+                    className={`vaccination-entry-block ${isAdditionalEntry ? "additional-entry" : ""}`}
                   >
-                    <div className="form-row row-70">
-                      <div className="form-field">
-                        <label>Vaccination Date</label>
-                        <input
-                          type="date"
-                          name="vaccinationDate"
-                          value={entry.vaccinationDate}
-                          min={formatDateForInput(childData?.dob)}
-                          max={getTodayDate()}
-                          onChange={(event) => handleEntryChange(entryIndex, event)}
-                          className={entryErrors.vaccinationDate ? "input-error" : ""}
-                        />
-                        {entryErrors.vaccinationDate && <span className="error-msg">{entryErrors.vaccinationDate}</span>}
+                    {!isAdditionalEntry && (
+                      <div className="form-row row-70">
+                        <div className="form-field">
+                          <label>Vaccination Date</label>
+                          <input
+                            type="date"
+                            name="vaccinationDate"
+                            value={entry.vaccinationDate}
+                            min={formatDateForInput(childData?.dob)}
+                            max={getTodayDate()}
+                            onChange={(event) => handleEntryChange(entryIndex, event)}
+                            className={entryErrors.vaccinationDate ? "input-error" : ""}
+                          />
+                          {entryErrors.vaccinationDate && <span className="error-msg">{entryErrors.vaccinationDate}</span>}
+                        </div>
+                        <div className="form-field">
+                          <label>Age</label>
+                          <select
+                            name="age"
+                            value={entry.age}
+                            onChange={(event) => handleEntryChange(entryIndex, event)}
+                            disabled={eligibleAgeOptions.length === 0}
+                            className={entryErrors.age ? "input-error" : ""}
+                          >
+                            <option value="">-- Select Age --</option>
+                            {eligibleAgeOptions.map((age) => <option key={age} value={age}>{age}</option>)}
+                          </select>
+                          {entryErrors.age && <span className="error-msg">{entryErrors.age}</span>}
+                        </div>
                       </div>
-                      <div className="form-field">
-                        <label>Age</label>
-                        <select
-                          name="age"
-                          value={entry.age}
-                          onChange={(event) => handleEntryChange(entryIndex, event)}
-                          disabled={eligibleAgeOptions.length === 0}
-                          className={entryErrors.age ? "input-error" : ""}
-                        >
-                          <option value="">-- Select Age --</option>
-                          {eligibleAgeOptions.map((age) => <option key={age} value={age}>{age}</option>)}
-                        </select>
-                        {entryErrors.age && <span className="error-msg">{entryErrors.age}</span>}
-                      </div>
-                    </div>
-
+                    )}
                     <div className="form-row row-60-40">
                       <div className="form-field">
                         <label>Vaccination Name</label>
@@ -658,7 +898,7 @@ function AddVaccination() {
                         <div className="dose-selection-row">
                           <div className={`dose-radio-container ${entryErrors.doseLabel ? "input-error" : ""}`}>
                             <div className="dose-options-list">
-                              {manualDoseOptions.map((dose) => (
+                              {doseOptions.map((dose) => (
                                 <label key={dose} className={`dose-card ${entry.doseLabel === dose ? "selected" : ""}`}>
                                   <input
                                     type="radio"
@@ -705,6 +945,12 @@ function AddVaccination() {
                         )}
                         {!entryErrors.doseLabel && !duplicateVaccination && duplicateEntry && (
                           <span className="error-msg">This vaccination is already added.</span>
+                        )}
+                        {!entryErrors.doseLabel && !duplicateVaccination && !duplicateEntry && sameDayVaccinationError && (
+                          <span className="error-msg">{sameDayVaccinationError}</span>
+                        )}
+                        {!entryErrors.doseLabel && !duplicateVaccination && !duplicateEntry && !sameDayVaccinationError && doseSequenceError && (
+                          <span className="error-msg">{doseSequenceError}</span>
                         )}
                       </div>
                     </div>

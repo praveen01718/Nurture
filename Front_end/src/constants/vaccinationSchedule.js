@@ -162,18 +162,24 @@ export const getVaccinationTypeOptions = (vaccinationName, ageLabel = "") => {
   )];
 };
 
-export const getDoseOptionsForVaccination = (vaccinationName, ageLabel, vaccinationType = "") => {
+export const getDoseOptionsForVaccination = (
+  vaccinationName,
+  ageLabel = "",
+  vaccinationType = ""
+) => {
   const selectedVaccination = VACCINATION_SCHEDULE_DATA.find(
     (item) => item.vaccineName === vaccinationName
   );
 
-  if (!selectedVaccination || !ageLabel) {
+  if (!selectedVaccination) {
     return [];
   }
 
-  return selectedVaccination.schedule
-    .filter((dose) => dose.age === ageLabel && (!vaccinationType || dose.type === vaccinationType))
-    .map((dose) => dose.dose);
+  return [...new Set(
+    selectedVaccination.schedule
+      .filter((dose) => (!ageLabel || dose.age === ageLabel) && (!vaccinationType || dose.type === vaccinationType))
+      .map((dose) => dose.dose)
+  )];
 };
 
 export const formatDoseText = (doseLabel) =>

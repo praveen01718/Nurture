@@ -13,11 +13,33 @@ import { MdArrowBack } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import "./AddMeasurement.css";
 
+const getMeasurementSortValue = (measurement) => {
+  if (!measurement?.measurement_date) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const parsedDate = new Date(measurement.measurement_date);
+  return Number.isNaN(parsedDate.getTime()) ? Number.NEGATIVE_INFINITY : parsedDate.getTime();
+};
+
+const getLatestMeasurementRecord = (measurements = []) =>
+  measurements.reduce((latestMeasurement, currentMeasurement) => {
+    const latestSortValue = getMeasurementSortValue(latestMeasurement);
+    const currentSortValue = getMeasurementSortValue(currentMeasurement);
+
+    if (currentSortValue > latestSortValue) {
+      return currentMeasurement;
+    }
+
+    return latestMeasurement;
+  }, null);
+
 function AddMeasurement() {
   const navigate = useNavigate();
   const { childId } = useParams();
 
   const [childData, setChildData] = useState(null);
+  const [latestMeasurement, setLatestMeasurement] = useState(null);
   const [weight, setWeight] = useState("");
   const [length, setLength] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -31,11 +53,16 @@ function AddMeasurement() {
   useEffect(() => {
     const fetchChild = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/Child-datas/${childId}`);
-        setChildData(response.data);
+        const [childResponse, measurementsResponse] = await Promise.all([
+          axios.get(`http://localhost:5000/api/Child-datas/${childId}`),
+          axios.get(`http://localhost:5000/api/medical-measurements/${childId}`)
+        ]);
+
+        setChildData(childResponse.data);
+        setLatestMeasurement(getLatestMeasurementRecord(measurementsResponse.data));
         
-        if (response.data.dob) {
-          calculateAge(response.data.dob);
+        if (childResponse.data.dob) {
+          calculateAge(childResponse.data.dob);
         }
       } catch (err) {
         console.error("Error fetching child data:", err);
@@ -147,9 +174,11 @@ function AddMeasurement() {
     }
   };
 
-  const latestMeasurement = childData?.measurements?.[0] || {};
-  const displayWeight = childData?.weight ?? latestMeasurement.weight;
-  const displayLength = childData?.length ?? latestMeasurement.length;
+  const fallbackMeasurement = getLatestMeasurementRecord(childData?.measurements || []) || {};
+  const displayWeight =
+    latestMeasurement?.weight ?? childData?.weight ?? fallbackMeasurement.weight;
+  const displayLength =
+    latestMeasurement?.length ?? childData?.length ?? fallbackMeasurement.length;
   const genderText = childData?.gender?.toLowerCase();
   const isBoy = genderText?.includes("boy") || genderText === "male";
   const isGirl = genderText?.includes("girl") || genderText === "female";
