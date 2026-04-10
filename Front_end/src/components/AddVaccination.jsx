@@ -63,8 +63,6 @@ const getDoseSortValue = (doseLabel) => DOSE_SORT_ORDER[doseLabel] ?? Number.MAX
 const getDateKey = (dateValue) => formatDateForInput(dateValue);
 const DATE_INTERVAL_REFERENCE = new Date(2000, 0, 1);
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
-const BIRTH_DOSE_MAX_AGE_LABEL = "4 Weeks";
-
 const getAgeSortValue = (ageLabel) => {
   const normalizedAge = ageLabel.toLowerCase().trim();
 
@@ -429,23 +427,7 @@ function AddVaccination() {
       return `The ${entry.doseLabel} dose is eligible on or after ${formatVaccinationDate(minimumEligibleDate)}.`;
     }
 
-    const normalizedScheduleAge = normalizeValue(currentDoseScheduleEntry.age);
-    const isBirthDose =
-      normalizedScheduleAge === "birth" || normalizedScheduleAge === "at birth";
-
-    if (!isBirthDose) {
-      return "";
-    }
-
-    const birthDoseCutoffDate = getStartOfDay(
-      addDurationToDate(dob, BIRTH_DOSE_MAX_AGE_LABEL)
-    );
-
-    if (!birthDoseCutoffDate || selectedVaccinationDate <= birthDoseCutoffDate) {
-      return "";
-    }
-
-    return `The ${entry.doseLabel} dose should be given within 4 weeks of birth. Please choose a date on or before ${formatVaccinationDate(birthDoseCutoffDate)}.`;
+    return "";
   };
 
   const getDoseDateEligibilityError = (entry, entryIndex, entries = formValues.entries) => {
