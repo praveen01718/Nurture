@@ -404,7 +404,6 @@ th.vax-sticky-col {
 
 .vax-dose-list.multiple .vax-dose-card {
   max-height: 50px;
-  padding: 5px;
 }
 
 .vax-dose-card {
@@ -413,8 +412,8 @@ th.vax-sticky-col {
   align-items: center;
   gap: 6px;
   justify-content: center;
-  padding: 10px 5px;
-  min-height: 90px;
+  padding: 0 5px;
+  min-height: 80px;
   width: 100%;
 }
 

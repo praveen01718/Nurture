@@ -95,13 +95,18 @@
   justify-content: flex-start;
   padding: 10px 15px;
   max-height: 45px;
-  flex: 1;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
 }
 
 .vaccination-form-container .dose-selection-row {
   display: flex;
   align-items: stretch;
   gap: 12px;
+  align-self: flex-start;
+  width: max-content;
+  max-width: 100%;
 }
 
 .vaccination-form-container .dose-action-buttons {
@@ -160,6 +165,14 @@
   cursor: pointer;
 }
 
+.vaccination-form-container .dose-card.disabled {
+  color: #94a3b8;
+}
+
+.vaccination-form-container .dose-card.disabled span {
+  opacity: 0.75;
+}
+
 .dose-options-list{
   display: flex;
   flex-wrap: wrap;
@@ -198,9 +211,15 @@
 
   .vaccination-form-container .dose-selection-row {
     flex-direction: column;
+    align-self: stretch;
+    width: 100%;
   }
 
   .vaccination-form-container .dose-action-buttons {
     align-self: flex-start;
+  }
+
+  .vaccination-form-container .dose-radio-container {
+    width: 100%;
   }
 }
