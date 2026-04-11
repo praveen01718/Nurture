@@ -84,6 +84,9 @@ body {
   padding: 0 30px;
   border-bottom: 1px solid #ddd;
   font-family: 'Nunito', sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .top-right {
