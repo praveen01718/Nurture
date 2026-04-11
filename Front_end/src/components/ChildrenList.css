@@ -84,7 +84,6 @@
   font-family: 'Nunito', sans-serif;
   border-collapse: collapse; 
   background: white; 
-  border-radius: 8px; 
   overflow: hidden; 
   box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
 }
@@ -117,7 +116,7 @@
 .gender-age-text.girl { color: var(--girl-pink); }
 .gender-age-text.boy { color: skyblue; }
 
-.child-action-row { display: flex; gap: 3px; align-items: center; font-family: 'Nunito', sans-serif;}
+.child-action-row { display: flex; gap: 3px; align-items: center; font-family: 'Nunito', sans-serif; margin-top: -5px; margin-bottom: -15px;}
 .action-icon { cursor: pointer; font-size: 13px; }
 .icon-analysis { color: #28a745; }   
 .icon-vaccine { color: var(--sidebar-teal); } 
@@ -225,7 +224,8 @@
 }
 
 .modal-card:hover {
-  background-color: #44cfbd4d;
+  background-color: var(--active-teal);
+  color: white;
 }
 
 .modal-card-icon {
