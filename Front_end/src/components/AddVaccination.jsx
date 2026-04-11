@@ -33,7 +33,7 @@ let vaccinationEntrySeed = 0;
 
 const createVaccinationEntry = (initialValues = {}) => ({
   id: vaccinationEntrySeed += 1,
-  vaccinationDate: initialValues.vaccinationDate || getTodayDate(),
+  vaccinationDate: initialValues.vaccinationDate ?? "",
   age: "",
   vaccinationName: "",
   vaccinationType: "",
@@ -230,14 +230,27 @@ function AddVaccination() {
   const getEligibleAgeOptionsForEntry = (vaccinationDate) =>
     getEligibleAgeOptions(childData?.dob, vaccinationDate, allAgeOptions);
 
-  const getVaccinationNameOptions = (ageLabel) => {
+  const getVaccinationNameOptions = (
+    ageLabel,
+    entryIndex,
+    entries = formValues.entries
+  ) => {
     if (!ageLabel) {
       return [];
     }
 
     const selectedAgeSortValue = getAgeSortValue(ageLabel);
+    const selectedNamesInPreviousEntries = new Set(
+      entries
+        .filter((entry, index) => index < entryIndex && entry?.vaccinationName)
+        .map((entry) => normalizeValue(entry.vaccinationName))
+    );
 
     return allVaccinationNames.filter((vaccinationName) => {
+      if (selectedNamesInPreviousEntries.has(normalizeValue(vaccinationName))) {
+        return false;
+      }
+
       const selectedVaccination = VACCINATION_SCHEDULE_DATA.find(
         (item) => item.vaccineName === vaccinationName
       );
@@ -1071,7 +1084,7 @@ function AddVaccination() {
         entries: [
           ...prev.entries,
           createVaccinationEntry({
-            vaccinationDate: sharedEntry.vaccinationDate || getTodayDate(),
+            vaccinationDate: sharedEntry.vaccinationDate ?? "",
             age: sharedEntry.age || ""
           })
         ]
@@ -1226,7 +1239,11 @@ function AddVaccination() {
               {formValues.entries.map((entry, entryIndex) => {
                 const entryErrors = errors.entries?.[entryIndex] || {};
                 const eligibleAgeOptions = getEligibleAgeOptionsForEntry(entry.vaccinationDate);
-                const vaccinationNameOptions = getVaccinationNameOptions(entry.age);
+                const vaccinationNameOptions = getVaccinationNameOptions(
+                  entry.age,
+                  entryIndex,
+                  formValues.entries
+                );
                 const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
                 const doseOptions = getDoseOptions(entry);
                 const doseDateEligibilityError = getDoseDateEligibilityError(entry, entryIndex);
@@ -1258,6 +1275,7 @@ function AddVaccination() {
                             type="date"
                             name="vaccinationDate"
                             value={entry.vaccinationDate}
+                            placeholder="dd-mm-yyyy"
                             min={formatDateForInput(childData?.dob)}
                             max={getTodayDate()}
                             onChange={(event) => handleEntryChange(entryIndex, event)}
