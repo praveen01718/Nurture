@@ -187,7 +187,7 @@ function AddChild() {
               </div>
               <p>Edit/Change<br />(Drag and Drop)</p>
             </div>
-            <button className="upload-text-link" onClick={() => {
+            <button className="upload-text-link-child" onClick={() => {
               if (!selectedFile) {
                 setAlertMessage("Please select an image first.");
                 setAlertType("error");
@@ -207,6 +207,8 @@ function AddChild() {
               <button className={`tab-item ${activeTab === "child" ? "active" : ""}`} onClick={() => setActiveTab("child")}>Child Info</button>
               <button className={`tab-item ${activeTab === "parent" ? "active" : ""}`} onClick={() => setActiveTab("parent")}>Parent Info</button>
             </div>
+
+          <div className="border-divider-child"><hr/></div>
 
             <div className="form-card-body">
               {activeTab === "child" ? (

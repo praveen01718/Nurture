@@ -191,36 +191,51 @@ body, html {
 }
 
 .upload-side-card {
-  width: 300px;
+  width: 240px;
   height: fit-content;
   background: white;
   padding: 40px 20px;
-  border-radius: 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .upload-inner {
+  width: 150px;
+  height: 150px;
   border: 2px dashed var(--header-slate);
-  padding: 30px 15px;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   cursor: pointer;
   color: var(--header-slate);
-  background-color: #eee;
-  font-size: 12px;
-  font-family: 'Nunito', sans-serif;
+  background-color: #ddd;
+  font-size: 11px;
+  padding: 0;
+}
+
+.upload-inner p {
+  margin: 0;
+  color: var(--header-slate);
+  line-height: 1.5;
 }
 
 .image-frame {
   width: 80px;
   height: 80px;
-  margin: 0 auto 15px;
-  background: var(--header-slate);
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #f0f0f0;
+  border-radius: 50%;
+  background: var(--header-slate);
+  margin-top: 10px;
+  margin-bottom: 10px;
   overflow: hidden;
 }
 
@@ -228,37 +243,38 @@ body, html {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 4px;
 }
 
 .placeholder-img-icon {
-  font-size: 40px;
-  color: #ddd;
+  font-size: 50px;  
+  color: white;
 }
 
-.upload-text-link {
+.upload-text-link-child {
   background: none;
   border: none;
   color: var(--nurture-teal);
-  font-weight: 700;
+  font-weight: 600;
   margin-top: 15px;
   cursor: pointer;
-  font-size: 13px;
 }
 
 .form-side-container {
   flex: 1;
+  background: white;
+  border-radius: 8px;
 }
 
 .tab-switcher {
   display: flex;
   gap: 10px;
+  padding: 10px 20px;
 }
 
 .tab-item {
   flex: 1;
-  padding: 12px;
-  border: 1px solid #e1f7f9;
+  padding: 8px 15px;
+  border: 1px solid var(--nurture-teal);
   background: white;
   color: var(--nurture-teal);
   font-weight: 600;
@@ -271,6 +287,12 @@ body, html {
   background: #e1f7f9;
   border: 1px solid var(--nurture-teal);
   color: var(--sidebar-dark);
+}
+
+.border-divider-child {
+  padding: 0 20px;
+  margin-bottom: -15px;
+  margin-top: -5px;
 }
 
 .form-card-body {

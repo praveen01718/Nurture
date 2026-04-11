@@ -63,6 +63,12 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
         </div>
         <div className="vax-scroll-viewport">
           <table className="vax-table">
+            <colgroup>
+              <col className="vax-name-column" />
+              {VACCINATION_HEADERS.slice(1).map((headerLabel) => (
+                <col key={headerLabel} className="vax-age-column" />
+              ))}
+            </colgroup>
             <thead>
               <tr>
                 {VACCINATION_HEADERS.map((h, i) => (
@@ -86,7 +92,9 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
               ) : (
                 scheduleRows.map((vaccine, i) => (
                   <tr key={i}>
-                    <td className="vax-name-cell vax-sticky-col">{vaccine.name}</td>
+                    <td className="vax-name-cell vax-sticky-col">
+                      <span className="vax-name-text">{vaccine.name}</span>
+                    </td>
                     {VACCINATION_HEADERS.slice(1).map((headerLabel, idx) => {
                       const cellDoses = vaccine.doses.filter((item) => item.age === headerLabel);
 

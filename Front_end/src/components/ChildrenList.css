@@ -5,6 +5,9 @@
   --active-teal: #16C4AE;
   --girl-pink: rgba(230, 130, 200, 0.911);
   --vaccination-primary: #22d3ee;
+  --vax-name-col-width: 150px;
+  --vax-age-col-width: 96px;
+  --vax-body-row-height: 82px;
 }
 
 .nav-link {
@@ -333,8 +336,19 @@
 }
 
 .vax-table {
-  width: 130%;
+  width: max-content;
+  min-width: 100%;
   margin: 10px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.vax-name-column {
+  width: var(--vax-name-col-width);
+}
+
+.vax-age-column {
+  width: var(--vax-age-col-width);
 }
 
 .vax-table th {
@@ -343,20 +357,30 @@
   color: #006b8d;
   font-weight: bold;
   font-size: 0.85rem;
-  padding: 10px 10px;
+  height: 35px;
+  padding: 2px 10px;
   border: 1px solid var(--sidebar-teal);
   border-top: 1px solid var(--sidebar-teal);
   border-bottom: 2px solid var(--header-grey);
   text-align: center;
-  position: sticky;
   z-index: 30;
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
 
 .vax-table td {
   border: 1px solid #b8b3b3d3;
-  padding: 16px 8px;
+  height: var(--vax-body-row-height);
+  padding: 0;
   vertical-align: middle;
   text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.vax-table tbody tr {
+  height: var(--vax-body-row-height);
 }
 
 .vax-sticky-col {
@@ -367,6 +391,7 @@
 
 th.vax-sticky-col {
   position: sticky;
+  text-align: left;
   z-index: 30;
   border: 1px solid var(--sidebar-teal);
   border-bottom: 2px solid var(--header-grey);
@@ -377,15 +402,25 @@ th.vax-sticky-col {
   font-size: 0.85rem;
   font-weight: bold;
   text-align: left !important;
-  padding-left: 20px !important;
-  width: 220px;
+  padding-left: 10px !important;
+  width: var(--vax-name-col-width);
+  max-width: var(--vax-name-col-width);
+  overflow-wrap: break-word;
+}
+
+.vax-name-text {
+  display: block;
+  max-height: calc(var(--vax-body-row-height) - 16px);
+  overflow: hidden;
+  line-height: 1.25;
 }
 
 .vax-dose-text {
   font-size: 0.75rem;
   color: #555;
   white-space: pre-line;
-  max-width: 100px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .vax-pending-dot::after {
@@ -400,10 +435,44 @@ th.vax-sticky-col {
   font-size: 0.65rem;
   color: black;
   font-weight: semi-bold;
+  white-space: nowrap;
+}
+
+.vax-dose-list {
+  display: flex;
+  width: 100%;
+  height: var(--vax-body-row-height);
+  overflow: hidden;
+}
+
+.vax-dose-list.multiple {
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .vax-dose-list.multiple .vax-dose-card {
-  max-height: 50px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: auto;
+  gap: 1px;
+  padding: 2px 4px;
+}
+
+.vax-dose-list.multiple .vax-dose-text {
+  font-size: 0.68rem;
+  line-height: 1.1;
+  margin-bottom: 0;
+}
+
+.vax-dose-list.multiple .vax-status-indicator {
+  width: 14px;
+  height: 14px;
+  margin-bottom: 0;
+}
+
+.vax-dose-list.multiple .vax-date-text {
+  font-size: 0.58rem;
+  line-height: 1;
 }
 
 .vax-dose-card {
@@ -413,16 +482,19 @@ th.vax-sticky-col {
   gap: 6px;
   justify-content: center;
   padding: 0 5px;
-  min-height: 80px;
+  min-height: 0;
+  height: 100%;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .done-bg {
-  background-color: #fcfcfc; 
+  background-color: #F8F9FA; 
 }
 
 .pending-bg {
-  background-color: #fcfcfc;
+  background-color: #F8F9FA;
 }
 
 .vax-dose-text {
@@ -451,11 +523,6 @@ th.vax-sticky-col {
 }
 
 
-
-.vax-table td {
-  padding: 0; 
-  vertical-align: middle;
-}
 
 .vax-table-state {
   padding: 18px !important;

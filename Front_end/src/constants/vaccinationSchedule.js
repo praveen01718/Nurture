@@ -109,6 +109,10 @@ export const VACCINATION_HEADERS = [
   ...VACCINATION_SCHEDULE.map((section) => section.age)
 ];
 
+const AGE_ORDER_BY_LABEL = new Map(
+  VACCINATION_SCHEDULE.map((section, index) => [section.age, index])
+);
+
 const vaccineNameMap = new Map();
 
 VACCINATION_SCHEDULE.forEach((section) => {
@@ -155,9 +159,19 @@ export const getVaccinationTypeOptions = (vaccinationName, ageLabel = "") => {
     return [];
   }
 
+  const hasAgeSelection = AGE_ORDER_BY_LABEL.has(ageLabel);
+  const selectedAgeOrder = AGE_ORDER_BY_LABEL.get(ageLabel);
+
   return [...new Set(
     selectedVaccination.schedule
-      .filter((dose) => !ageLabel || dose.age === ageLabel)
+      .filter((dose) => {
+        if (!hasAgeSelection) {
+          return true;
+        }
+
+        const doseAgeOrder = AGE_ORDER_BY_LABEL.get(dose.age);
+        return typeof doseAgeOrder === "number" && doseAgeOrder <= selectedAgeOrder;
+      })
       .map((dose) => dose.type)
   )];
 };
