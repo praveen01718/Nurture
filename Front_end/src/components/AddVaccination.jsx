@@ -135,20 +135,6 @@ const calculateAge = (dobString) => {
 };
 
 const getUniqueValues = (values) => [...new Set(values.filter(Boolean))];
-const getStartOfDay = (dateValue) => {
-  if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-    const [year, month, day] = dateValue.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  const parsedDate = new Date(dateValue);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return null;
-  }
-
-  return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
-};
 
 const getMeasurementSortValue = (measurement) => {
   if (!measurement?.measurement_date) {
@@ -953,7 +939,9 @@ function AddVaccination() {
   };
 
   const handleReset = () => {
-    setFormValues(createDefaultForm());
+    setFormValues({
+      entries: [createVaccinationEntry({ vaccinationDate: "" })]
+    });
     setErrors(createDefaultErrors());
   };
 

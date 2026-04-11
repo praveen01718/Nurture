@@ -16,10 +16,41 @@ import { MdArrowBack } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import {
   VACCINATION_HEADERS,
-  buildVaccinationScheduleRows,
-  formatDoseText
+  buildVaccinationScheduleRows
 } from "../constants/vaccinationSchedule";
 import "./ChildrenList.css";
+
+const ORDINAL_DOSE_PATTERN = /^(\d+)(st|nd|rd|th)$/i;
+
+const renderDoseText = (doseLabel) => {
+  const trimmedDoseLabel = doseLabel?.trim() || "";
+
+  if (!trimmedDoseLabel) {
+    return "";
+  }
+
+  if (trimmedDoseLabel.toLowerCase() === "booster") {
+    return "Booster";
+  }
+
+  const ordinalMatch = trimmedDoseLabel.match(ORDINAL_DOSE_PATTERN);
+
+  if (!ordinalMatch) {
+    return `${trimmedDoseLabel} dose`;
+  }
+
+  const [, doseNumber, doseSuffix] = ordinalMatch;
+
+  return (
+    <>
+      <span className="vax-dose-ordinal">
+        {doseNumber}
+        <sup>{doseSuffix.toLowerCase()}</sup>
+      </span>{" "}
+      dose
+    </>
+  );
+};
 
 const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
   const [vaccinations, setVaccinations] = useState([]);
@@ -107,7 +138,7 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
                                   key={`${dose.label}-${dose.status}-${dose.date || "no-date"}-${doseIndex}`}
                                   className={`vax-dose-card ${dose.status}-bg`}
                                 >
-                                  <span className="vax-dose-text">{formatDoseText(dose.label)}</span>
+                                  <span className="vax-dose-text">{renderDoseText(dose.label)}</span>
                                   <div className={`vax-status-indicator ${dose.status}`}>
                                     {dose.status === "done" ? <FaCheck size={8} /> : <FaTimes size={8} />}
                                   </div>
