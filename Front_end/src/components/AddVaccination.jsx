@@ -150,7 +150,7 @@ const calculateAge = (dobString) => {
     months += 12;
   }
 
-  return years < 1 ? `${months} Mos` : `${years} Yrs`;
+  return years < 1 ? `${months} Mons` : `${years} Yrs`;
 };
 
 const getUniqueValues = (values) => [...new Set(values.filter(Boolean))];
@@ -174,6 +174,27 @@ const getLatestMeasurementRecord = (measurements = []) =>
     }
 
     return latestMeasurement;
+  }, null);
+
+const getVaccinationSortValue = (vaccination) => {
+  if (!vaccination?.vaccination_date) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const parsedDate = parseDateValue(vaccination.vaccination_date);
+  return parsedDate ? parsedDate.getTime() : Number.NEGATIVE_INFINITY;
+};
+
+const getLatestVaccinationRecord = (vaccinations = []) =>
+  vaccinations.reduce((latestVaccination, currentVaccination) => {
+    const latestSortValue = getVaccinationSortValue(latestVaccination);
+    const currentSortValue = getVaccinationSortValue(currentVaccination);
+
+    if (currentSortValue > latestSortValue) {
+      return currentVaccination;
+    }
+
+    return latestVaccination;
   }, null);
 
 const getEntryKey = (entry) => [
@@ -230,6 +251,30 @@ function AddVaccination() {
   const getEligibleAgeOptionsForEntry = (vaccinationDate) =>
     getEligibleAgeOptions(childData?.dob, vaccinationDate, allAgeOptions);
 
+  const formatSavedDoseMessage = (vaccinationRecord) => {
+    if (!vaccinationRecord?.dose_label) {
+      return "Already Vaccinated .";
+    }
+
+    const formattedDate = formatVaccinationDate(vaccinationRecord.vaccination_date);
+
+    return formattedDate
+      ? `The ${vaccinationRecord.dose_label} dose is vaccinated on ${formattedDate}.`
+      : `The ${vaccinationRecord.dose_label} dose is vaccinated.`;
+  };
+
+  const formatPendingDoseMessage = (doseLabel, vaccinationDate) => {
+    if (!doseLabel) {
+      return "Already Vaccinated .";
+    }
+
+    const formattedDate = formatVaccinationDate(vaccinationDate);
+
+    return formattedDate
+      ? `The ${doseLabel} dose is already selected on ${formattedDate}.`
+      : `The ${doseLabel} dose is already selected.`;
+  };
+
   const getVaccinationNameOptions = (
     ageLabel,
     entryIndex,
@@ -240,37 +285,100 @@ function AddVaccination() {
     }
 
     const selectedAgeSortValue = getAgeSortValue(ageLabel);
-    const selectedNamesInPreviousEntries = new Set(
-      entries
-        .filter((entry, index) => index < entryIndex && entry?.vaccinationName)
-        .map((entry) => normalizeValue(entry.vaccinationName))
-    );
-
-    return allVaccinationNames.filter((vaccinationName) => {
-      if (selectedNamesInPreviousEntries.has(normalizeValue(vaccinationName))) {
-        return false;
+    const selectedVaccinationStats = entries.reduce((accumulator, currentEntry, currentIndex) => {
+      if (currentIndex === entryIndex) {
+        return accumulator;
       }
 
+      const normalizedName = normalizeValue(currentEntry?.vaccinationName);
+
+      if (!normalizedName) {
+        return accumulator;
+      }
+
+      const existingStats = accumulator.get(normalizedName) || {
+        count: 0,
+        selectedTypes: new Set()
+      };
+
+      existingStats.count += 1;
+
+      if (currentEntry?.vaccinationType) {
+        existingStats.selectedTypes.add(normalizeValue(currentEntry.vaccinationType));
+      }
+
+      accumulator.set(normalizedName, existingStats);
+      return accumulator;
+    }, new Map());
+
+    return allVaccinationNames.filter((vaccinationName) => {
       const selectedVaccination = VACCINATION_SCHEDULE_DATA.find(
         (item) => item.vaccineName === vaccinationName
       );
 
-      return selectedVaccination?.schedule.some(
+      const isAgeEligible = selectedVaccination?.schedule.some(
         (dose) => getAgeSortValue(dose.age) <= selectedAgeSortValue
       );
+
+      if (!isAgeEligible) {
+        return false;
+      }
+
+      const normalizedVaccinationName = normalizeValue(vaccinationName);
+      const selectedStats = selectedVaccinationStats.get(normalizedVaccinationName) || {
+        count: 0,
+        selectedTypes: new Set()
+      };
+      const typeOptions = getScheduleTypeOptions(vaccinationName, ageLabel);
+
+      if (typeOptions.length <= 1) {
+        return selectedStats.count === 0;
+      }
+
+      if (selectedStats.selectedTypes.size === 0) {
+        return true;
+      }
+
+      const remainingTypeOptions = typeOptions.filter(
+        (typeOption) => !selectedStats.selectedTypes.has(normalizeValue(typeOption))
+      );
+
+      return remainingTypeOptions.length > 0;
     });
   };
 
-  const getVaccinationTypeOptions = (entry) => {
+  const getVaccinationTypeOptions = (
+    entry,
+    entryIndex = -1,
+    entries = formValues.entries
+  ) => {
     if (!entry.vaccinationName) {
       return [];
     }
 
     const ageBasedTypeOptions = getScheduleTypeOptions(entry.vaccinationName, entry.age);
-
-    return ageBasedTypeOptions.length > 0
+    const availableTypeOptions = ageBasedTypeOptions.length > 0
       ? ageBasedTypeOptions
       : getScheduleTypeOptions(entry.vaccinationName);
+
+    if (availableTypeOptions.length <= 1) {
+      return availableTypeOptions;
+    }
+
+    const selectedTypes = new Set(
+      entries
+        .filter((currentEntry, currentIndex) => (
+          currentIndex !== entryIndex &&
+          normalizeValue(currentEntry?.vaccinationName) === normalizeValue(entry.vaccinationName) &&
+          currentEntry?.vaccinationType
+        ))
+        .map((currentEntry) => normalizeValue(currentEntry.vaccinationType))
+    );
+
+    return availableTypeOptions.filter((typeOption) => (
+      normalizeValue(typeOption) === normalizeValue(entry.vaccinationType) ||
+      !selectedTypes.has(normalizeValue(typeOption))
+    ));
   };
 
   const getDoseOptions = (entry) => {
@@ -416,73 +524,6 @@ function AddVaccination() {
     ));
   };
 
-  const getDoseIntervalEligibilityError = (
-    entry,
-    entryIndex,
-    entries = formValues.entries
-  ) => {
-    if (!entry?.vaccinationName || !entry?.doseLabel || !entry?.vaccinationDate || !childData?.dob) {
-      return "";
-    }
-
-    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
-
-    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
-      return "";
-    }
-
-    const previousScheduledDoseEntry = getPreviousScheduledDoseEntry(
-      entry.vaccinationName,
-      entry.vaccinationType,
-      entry.doseLabel
-    );
-
-    if (!previousScheduledDoseEntry) {
-      return "";
-    }
-
-    const currentScheduledDoseEntries = getOrderedScheduledDoseEntries(
-      entry.vaccinationName,
-      entry.vaccinationType
-    );
-    const selectedScheduledDoseEntry = currentScheduledDoseEntries.find(
-      (doseEntry) => normalizeValue(doseEntry.dose) === normalizeValue(entry.doseLabel)
-    );
-
-    if (!selectedScheduledDoseEntry) {
-      return "";
-    }
-
-    const dob = parseDateValue(childData.dob);
-    const currentVaccinationDate = parseDateValue(entry.vaccinationDate);
-    const previousDoseVaccinationDate = getLatestDoseVaccinationDate(
-      entry.vaccinationName,
-      entry.vaccinationType,
-      previousScheduledDoseEntry.dose,
-      entryIndex,
-      entries
-    );
-
-    if (!dob || !currentVaccinationDate || !previousDoseVaccinationDate) {
-      return "";
-    }
-
-    const scheduledPreviousDoseDate = addDurationToDate(dob, previousScheduledDoseEntry.age);
-    const scheduledCurrentDoseDate = addDurationToDate(dob, selectedScheduledDoseEntry.age);
-    const minimumInterval = scheduledCurrentDoseDate.getTime() - scheduledPreviousDoseDate.getTime();
-
-    if (minimumInterval <= 0) {
-      return "";
-    }
-
-    const eligibleDate = new Date(previousDoseVaccinationDate.getTime() + minimumInterval);
-    eligibleDate.setHours(0, 0, 0, 0);
-
-    return currentVaccinationDate >= eligibleDate
-      ? ""
-      : `${entry.doseLabel} dose will be eligible on ${formatVaccinationDate(eligibleDate)}.`;
-  };
-
   const isDoseAvailableForSelectedAge = (entry, doseLabel) => {
     if (!entry?.age || !entry?.vaccinationName || !doseLabel) {
       return true;
@@ -506,92 +547,6 @@ function AddVaccination() {
     }
 
     return selectedAgeSortValue >= scheduledDoseAgeSortValue;
-  };
-
-  const getDoseAgePeriodError = (
-    entry,
-    entryIndex,
-    orderedDoseOptions,
-    selectedDoseIndex,
-    entries = formValues.entries
-  ) => {
-    if (selectedDoseIndex <= 0 || !entry?.age) {
-      return "";
-    }
-
-    const selectedAgeSortValue = getAgeSortValue(entry.age);
-    const previousDoseLabels = new Set(
-      orderedDoseOptions
-        .slice(0, selectedDoseIndex)
-        .map((doseLabel) => normalizeValue(doseLabel))
-    );
-
-    const hasSavedPreviousDoseInSameOrLaterPeriod = existingVaccinations.some((vaccination) => (
-      vaccination.age_label &&
-      previousDoseLabels.has(normalizeValue(vaccination.dose_label)) &&
-      getAgeSortValue(vaccination.age_label) >= selectedAgeSortValue &&
-      matchesVaccinationSelection(
-        vaccination.vaccination_name,
-        vaccination.vaccination_type,
-        entry.vaccinationName,
-        entry.vaccinationType
-      )
-    ));
-
-    if (hasSavedPreviousDoseInSameOrLaterPeriod) {
-      return "Already Vaccinated .";
-    }
-
-    const hasPendingPreviousDoseInSameOrLaterPeriod = entries.some((currentEntry, currentIndex) => (
-      currentIndex < entryIndex &&
-      currentEntry?.age &&
-      previousDoseLabels.has(normalizeValue(currentEntry?.doseLabel)) &&
-      getAgeSortValue(currentEntry.age) >= selectedAgeSortValue &&
-      matchesVaccinationSelection(
-        currentEntry?.vaccinationName,
-        currentEntry?.vaccinationType,
-        entry.vaccinationName,
-        entry.vaccinationType
-      )
-    ));
-
-    return hasPendingPreviousDoseInSameOrLaterPeriod ? "Already Vaccinated ." : "";
-  };
-
-  const getDoseDateEligibilityError = (entry, entryIndex, entries = formValues.entries) => {
-    if (!entry?.vaccinationName || !entry?.doseLabel) {
-      return "";
-    }
-
-    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
-
-    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
-      return "";
-    }
-
-    const orderedDoseOptions = [...getDoseOptionsForVaccination(
-      entry.vaccinationName,
-      "",
-      entry.vaccinationType
-    )].sort((leftDose, rightDose) => getDoseSortValue(leftDose) - getDoseSortValue(rightDose));
-
-    const selectedDoseIndex = orderedDoseOptions.findIndex(
-      (doseLabel) => normalizeValue(doseLabel) === normalizeValue(entry.doseLabel)
-    );
-
-    const doseAgePeriodError = getDoseAgePeriodError(
-      entry,
-      entryIndex,
-      orderedDoseOptions,
-      selectedDoseIndex,
-      entries
-    );
-
-    if (doseAgePeriodError) {
-      return doseAgePeriodError;
-    }
-
-    return getDoseIntervalEligibilityError(entry, entryIndex, entries);
   };
 
   const getDoseSequenceError = (entry, entryIndex, entries = formValues.entries) => {
@@ -676,11 +631,64 @@ function AddVaccination() {
       return true;
     }
 
+    const recordedDoseLabels = new Set([
+      ...existingVaccinations
+        .filter((vaccination) => matchesVaccinationSelection(
+          vaccination.vaccination_name,
+          vaccination.vaccination_type,
+          entry.vaccinationName,
+          entry.vaccinationType
+        ))
+        .map((vaccination) => normalizeValue(vaccination.dose_label)),
+      ...entries
+        .filter((currentEntry, currentIndex) => (
+          currentIndex !== entryIndex &&
+          currentEntry?.doseLabel &&
+          matchesVaccinationSelection(
+            currentEntry.vaccinationName,
+            currentEntry.vaccinationType,
+            entry.vaccinationName,
+            entry.vaccinationType
+          )
+        ))
+        .map((currentEntry) => normalizeValue(currentEntry.doseLabel))
+    ]);
+
     const orderedDoseOptions = [...getDoseOptionsForVaccination(
       entry.vaccinationName,
       "",
       entry.vaccinationType
     )].sort((leftDose, rightDose) => getDoseSortValue(leftDose) - getDoseSortValue(rightDose));
+
+    const latestRecordedDoseLabel = [...orderedDoseOptions]
+      .reverse()
+      .find((currentDoseLabel) => recordedDoseLabels.has(normalizeValue(currentDoseLabel)));
+
+    const latestRecordedDoseIndex = latestRecordedDoseLabel
+      ? orderedDoseOptions.findIndex(
+          (currentDoseLabel) => normalizeValue(currentDoseLabel) === normalizeValue(latestRecordedDoseLabel)
+        )
+      : -1;
+
+    const immediateNextDoseLabel =
+      latestRecordedDoseIndex >= 0 && latestRecordedDoseIndex < orderedDoseOptions.length - 1
+        ? orderedDoseOptions[latestRecordedDoseIndex + 1]
+        : "";
+
+    if (recordedDoseLabels.has(normalizeValue(doseLabel))) {
+      const shouldKeepLatestRecordedDoseEnabled =
+        latestRecordedDoseLabel &&
+        normalizeValue(doseLabel) === normalizeValue(latestRecordedDoseLabel) &&
+        immediateNextDoseLabel &&
+        !isDoseAvailableForSelectedAge(entry, immediateNextDoseLabel);
+
+      return !shouldKeepLatestRecordedDoseEnabled;
+    }
+
+    const candidateEntry = {
+      ...entry,
+      doseLabel
+    };
     const selectedDoseIndex = orderedDoseOptions.findIndex(
       (currentDoseLabel) => normalizeValue(currentDoseLabel) === normalizeValue(doseLabel)
     );
@@ -689,24 +697,15 @@ function AddVaccination() {
       return false;
     }
 
-    const candidateEntry = {
-      ...entry,
-      doseLabel
-    };
-
-    if (hasDuplicateVaccination(candidateEntry)) {
-      return false;
-    }
-
     if (getDoseSequenceError(candidateEntry, entryIndex, entries)) {
       return true;
     }
 
-    return Boolean(getDoseIntervalEligibilityError(candidateEntry, entryIndex, entries));
+    return false;
   };
 
   const getSameDayVaccinationError = (entry, entryIndex, entries = formValues.entries) => {
-    if (!entry?.vaccinationDate || !entry?.vaccinationName) {
+    if (!entry?.vaccinationDate || !entry?.vaccinationName || !entry?.doseLabel) {
       return "";
     }
 
@@ -722,21 +721,23 @@ function AddVaccination() {
       return "";
     }
 
-    const hasSavedSameDayVaccination = existingVaccinations.some((vaccination) => (
-      getDateKey(vaccination.vaccination_date) === selectedDateKey &&
-      matchesVaccinationSelection(
-        vaccination.vaccination_name,
-        vaccination.vaccination_type,
-        entry.vaccinationName,
-        entry.vaccinationType
-      )
-    ));
+    const savedSameDayVaccination = getLatestVaccinationRecord(
+      existingVaccinations.filter((vaccination) => (
+        getDateKey(vaccination.vaccination_date) === selectedDateKey &&
+        matchesVaccinationSelection(
+          vaccination.vaccination_name,
+          vaccination.vaccination_type,
+          entry.vaccinationName,
+          entry.vaccinationType
+        )
+      ))
+    );
 
-    if (hasSavedSameDayVaccination) {
-      return "Already Vaccinated .";
+    if (savedSameDayVaccination) {
+      return formatSavedDoseMessage(savedSameDayVaccination);
     }
 
-    const hasFormSameDayVaccination = entries.some((currentEntry, currentIndex) => (
+    const formSameDayVaccination = entries.find((currentEntry, currentIndex) => (
       currentIndex < entryIndex &&
       getDateKey(currentEntry?.vaccinationDate) === selectedDateKey &&
       matchesVaccinationSelection(
@@ -747,15 +748,105 @@ function AddVaccination() {
       )
     ));
 
-    if (hasFormSameDayVaccination) {
-      return "Already Vaccinated .";
+    if (formSameDayVaccination) {
+      return formatPendingDoseMessage(
+        formSameDayVaccination.doseLabel,
+        formSameDayVaccination.vaccinationDate
+      );
+    }
+
+    return "";
+  };
+
+  const getPreviousDoseVaccinatedError = (entry, entryIndex, entries = formValues.entries) => {
+    if (!entry?.vaccinationDate || !entry?.age || !entry?.vaccinationName || !entry?.doseLabel) {
+      return "";
+    }
+
+    const vaccinationTypeOptions = getVaccinationTypeOptions(entry, entryIndex, entries);
+
+    if (vaccinationTypeOptions.length > 0 && !entry.vaccinationType) {
+      return "";
+    }
+
+    const orderedDoseOptions = [...getDoseOptionsForVaccination(
+      entry.vaccinationName,
+      "",
+      entry.vaccinationType
+    )].sort((leftDose, rightDose) => getDoseSortValue(leftDose) - getDoseSortValue(rightDose));
+
+    const selectedDoseIndex = orderedDoseOptions.findIndex(
+      (doseLabel) => normalizeValue(doseLabel) === normalizeValue(entry.doseLabel)
+    );
+
+    if (selectedDoseIndex <= 0) {
+      return "";
+    }
+
+    const immediatePreviousDose = orderedDoseOptions[selectedDoseIndex - 1];
+    const selectedAgeSortValue = getAgeSortValue(entry.age);
+
+    if (!immediatePreviousDose || !Number.isFinite(selectedAgeSortValue)) {
+      return "";
+    }
+
+    const savedPreviousDoseRecord = getLatestVaccinationRecord(
+      existingVaccinations.filter((vaccination) => {
+        const vaccinatedAgeSortValue = getAgeSortValue(vaccination.age_label || "");
+
+        return (
+          Number.isFinite(vaccinatedAgeSortValue) &&
+          vaccinatedAgeSortValue >= selectedAgeSortValue &&
+          normalizeValue(vaccination.dose_label) === normalizeValue(immediatePreviousDose) &&
+          matchesVaccinationSelection(
+            vaccination.vaccination_name,
+            vaccination.vaccination_type,
+            entry.vaccinationName,
+            entry.vaccinationType
+          )
+        );
+      })
+    );
+
+    if (savedPreviousDoseRecord) {
+      const formattedDate = formatVaccinationDate(savedPreviousDoseRecord.vaccination_date);
+      return formattedDate
+        ? `The ${immediatePreviousDose} dose is vaccinated on ${formattedDate}.`
+        : `The ${immediatePreviousDose} dose is vaccinated.`;
+    }
+
+    const pendingPreviousDoseRecord = entries.find((currentEntry, currentIndex) => {
+      if (currentIndex >= entryIndex) {
+        return false;
+      }
+
+      const currentEntryAgeSortValue = getAgeSortValue(currentEntry?.age || "");
+
+      return (
+        Number.isFinite(currentEntryAgeSortValue) &&
+        currentEntryAgeSortValue >= selectedAgeSortValue &&
+        normalizeValue(currentEntry?.doseLabel) === normalizeValue(immediatePreviousDose) &&
+        matchesVaccinationSelection(
+          currentEntry?.vaccinationName,
+          currentEntry?.vaccinationType,
+          entry.vaccinationName,
+          entry.vaccinationType
+        )
+      );
+    });
+
+    if (pendingPreviousDoseRecord) {
+      const formattedDate = formatVaccinationDate(pendingPreviousDoseRecord.vaccinationDate);
+      return formattedDate
+        ? `The ${immediatePreviousDose} dose is vaccinated on ${formattedDate}.`
+        : `The ${immediatePreviousDose} dose is vaccinated.`;
     }
 
     return "";
   };
 
   const isEntryCompleteForDuplicateCheck = (entry) => {
-    const requiresVaccinationType = getVaccinationTypeOptions(entry).length > 0;
+    const requiresVaccinationType = getVaccinationTypeOptions(entry, -1, formValues.entries).length > 0;
 
     if (!entry.age || !entry.vaccinationName || !entry.doseLabel) {
       return false;
@@ -892,9 +983,7 @@ function AddVaccination() {
 
   const getEntryValidationErrors = (entry, entryIndex, entries = formValues.entries) => {
     const entryErrors = {};
-    const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
-    const doseDateEligibilityError = getDoseDateEligibilityError(entry, entryIndex, entries);
-    const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex, entries);
+    const vaccinationTypeOptions = getVaccinationTypeOptions(entry, entryIndex, entries);
 
     if (!entry.vaccinationDate) entryErrors.vaccinationDate = "Field is Required";
     if (!entry.age) entryErrors.age = "Field is Required";
@@ -903,8 +992,6 @@ function AddVaccination() {
       entryErrors.vaccinationType = "Field is Required";
     }
     if (!entry.doseLabel) entryErrors.doseLabel = "Field is Required";
-    if (doseDateEligibilityError) entryErrors.doseDateEligibility = doseDateEligibilityError;
-    if (sameDayVaccinationError) entryErrors.sameDayVaccination = sameDayVaccinationError;
 
     return entryErrors;
   };
@@ -1076,6 +1163,25 @@ function AddVaccination() {
       return;
     }
 
+    const siblingEntries = formValues.entries.filter((_, index) => index !== entryIndex);
+    const baseTypeOptions = getScheduleTypeOptions(currentEntry.vaccinationName, currentEntry.age);
+    const selectedSiblingTypes = new Set(
+      siblingEntries
+        .filter((entry) => (
+          normalizeValue(entry?.vaccinationName) === normalizeValue(currentEntry.vaccinationName) &&
+          entry?.vaccinationType
+        ))
+        .map((entry) => normalizeValue(entry.vaccinationType))
+    );
+    const remainingTypeOptions = baseTypeOptions.filter(
+      (typeOption) => !selectedSiblingTypes.has(normalizeValue(typeOption))
+    );
+    const shouldPrefillSameVaccination = Boolean(
+      currentEntry.vaccinationName &&
+      baseTypeOptions.length > 1 &&
+      remainingTypeOptions.length > 0
+    );
+
     setFormValues((prev) => {
       const sharedEntry = prev.entries[0] || {};
 
@@ -1127,7 +1233,7 @@ function AddVaccination() {
         const payload = {
           child_id: Number(childId),
           vaccination_name: entry.vaccinationName,
-          vaccination_type: entry.vaccinationType,
+          vaccination_type: entry.vaccinationType || "",
           age_label: entry.age,
           dose_label: entry.doseLabel,
           vaccination_date: entry.vaccinationDate
@@ -1137,8 +1243,11 @@ function AddVaccination() {
       }
 
       showPageAlert("Vaccination saved successfully !", "success", true);
-    } catch {
-      showPageAlert("Error saving vaccination.", "error");
+    } catch (error) {
+      showPageAlert(
+        error.response?.data?.message || "Error saving vaccination.",
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -1224,7 +1333,7 @@ function AddVaccination() {
                   <h4 className="child-name">{childData?.childName || "Loading..."}</h4>
                   <span className="child-gender-age">
                     <span style={{ color: genderColor }}>{isBoy ? "Boy" : isGirl ? "Girl" : "N/A"}</span>
-                    <span style={{ color: "#000" }}> - {calculateAge(childData?.dob)}</span>
+                    <span style={{ color: "#000", fontWeight: "lighter" }}> - {calculateAge(childData?.dob)}</span>
                   </span>
                 </div>
               </div>
@@ -1244,20 +1353,28 @@ function AddVaccination() {
                   entryIndex,
                   formValues.entries
                 );
-                const vaccinationTypeOptions = getVaccinationTypeOptions(entry);
+                const vaccinationTypeOptions = getVaccinationTypeOptions(
+                  entry,
+                  entryIndex,
+                  formValues.entries
+                );
                 const doseOptions = getDoseOptions(entry);
-                const doseDateEligibilityError = getDoseDateEligibilityError(entry, entryIndex);
                 const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex);
+                const previousDoseVaccinatedError = getPreviousDoseVaccinatedError(
+                  entry,
+                  entryIndex,
+                  formValues.entries
+                );
                 const duplicateVaccinationError = hasDuplicateVaccination(entry)
                   ? "Already Vaccinated ."
                   : "";
                 const duplicateEntryError = getDuplicateEntryError(entryIndex, formValues.entries);
                 const displayedDoseError =
                   entryErrors.doseLabel ||
+                  previousDoseVaccinatedError ||
                   duplicateVaccinationError ||
                   duplicateEntryError ||
-                  sameDayVaccinationError ||
-                  doseDateEligibilityError;
+                  sameDayVaccinationError;
                 const isLastEntry = entryIndex === formValues.entries.length - 1;
                 const isAdditionalEntry = entryIndex > 0;
                 const hasDoseContainerError = Boolean(displayedDoseError);
@@ -1409,5 +1526,4 @@ function AddVaccination() {
   );
 }
 
-export default AddVaccination;
-
+export default AddVaccination;  

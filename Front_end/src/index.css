@@ -1,3 +1,128 @@
 body {
   font-family: 'Nunito', sans-serif;
 }
+
+.custom-alert,
+.custom-toast {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+  width: min(320px, calc(100vw - 16px)) !important;
+  min-height: 50px !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  animation: global-toast-slide-in 0.24s ease-out !important;
+}
+
+.custom-alert::before,
+.custom-toast::before {
+  content: none !important;
+  display: none !important;
+}
+
+.custom-alert::after,
+.custom-toast::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+}
+
+.custom-alert .alert-content,
+.custom-toast .alert-content {
+  display: block !important;
+}
+
+.custom-alert .alert-content span,
+.custom-toast .alert-content span,
+.custom-toast {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.custom-alert .alert-content span {
+  display: inline-block;
+}
+
+.custom-alert .alert-content span::after,
+.custom-toast::after {
+  pointer-events: none;
+}
+
+.custom-alert .alert-content span,
+.custom-toast {
+  position: relative;
+}
+
+.custom-alert .alert-content span::before,
+.custom-toast::before {
+  pointer-events: none;
+}
+
+.custom-alert.success-bg,
+.custom-toast.success {
+  background: linear-gradient(90deg, #36d487 0%, #2fbe77 100%) !important;
+}
+
+.custom-alert.error-bg,
+.custom-toast.error {
+  background: linear-gradient(90deg, #ff5531 0%, #f0421e 100%) !important;
+}
+
+.custom-alert.success-bg::before,
+.custom-toast.success::before {
+  content: none !important;
+}
+
+.custom-alert.error-bg::before,
+.custom-toast.error::before {
+  content: none !important;
+}
+
+.custom-alert.success-bg .alert-content span::after,
+.custom-toast.success::after,
+.custom-alert.error-bg .alert-content span::after,
+.custom-toast.error::after {
+  content: "";
+  position: absolute;
+  left: -14px;
+  right: -42px;
+  bottom: -13px;
+  height:   4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  transform-origin: left;
+  animation: global-toast-progress 3s linear forwards;
+  display: block !important;
+}
+
+@keyframes global-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes global-toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

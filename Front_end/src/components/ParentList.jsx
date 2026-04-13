@@ -13,6 +13,20 @@ import { VscError } from "react-icons/vsc";
 import { MdArrowBack, } from "react-icons/md";
 import "../components/ParentList.css";
 
+const formatContactNumber = (phoneNumber) => {
+  const cleanedValue = String(phoneNumber || "").trim();
+
+  if (!cleanedValue) {
+    return "-";
+  }
+
+  if (/^\+\d/.test(cleanedValue)) {
+    return cleanedValue;
+  }
+
+  return `+1 ${cleanedValue.replace(/\D/g, "")}`;
+};
+
 function ParentList() {
   const navigate = useNavigate();
   const [parents, setParents] = useState([]);
@@ -181,7 +195,7 @@ function ParentList() {
                     </td>
                     <td><FaChartBar className="analytic-icon"/></td>
                     <td>{parent.childrenCount || 0}</td>
-                    <td>{parent.phoneNumber || '-'}</td>
+                    <td>{formatContactNumber(parent.phoneNumber)}</td>
                     <td className="email-link" style={{color:'#0000FF'}}>{parent.email}</td>
                     <td>{parent.city}, {parent.state}</td>
                     <td className="action-td">

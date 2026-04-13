@@ -11,9 +11,18 @@ import { MdArrowBack } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import "./AddChild.css";
 
+const COUNTRY_OPTIONS = [
+  { code: "+1", iso: "us", label: "United States" },
+  { code: "+91", iso: "in", label: "India" },
+  { code: "+44", iso: "gb", label: "United Kingdom" },
+  { code: "+61", iso: "au", label: "Australia" },
+  { code: "+971", iso: "ae", label: "UAE" }
+];
+
 function AddChild() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const phoneCountryDropdownRef = useRef(null);
   const today = new Date().toISOString().split("T")[0];
 
   const [activeTab, setActiveTab] = useState("child");
@@ -25,6 +34,8 @@ function AddChild() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
+  const [selectedCountryCode, setSelectedCountryCode] = useState(COUNTRY_OPTIONS[0].code);
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     childName: "",
@@ -64,22 +75,62 @@ function AddChild() {
     handleFile(e.dataTransfer.files[0]);
   };
 
-  useEffect(() => {
-    if (formData.dob && formData.expectedDate && formData.isPremature === "yes") {
-      const birth = new Date(formData.dob);
-      const expected = new Date(formData.expectedDate);
-      if (expected > birth) {
-        const diffWeeks = Math.floor(Math.abs(expected - birth) / (1000 * 60 * 60 * 24 * 7));
-        setFormData((prev) => ({ ...prev, weeksPremature: diffWeeks }));
-      } else {
-        setFormData((prev) => ({ ...prev, weeksPremature: 0 }));
-      }
+  const calculateGestationalAgeAtBirth = (dob, expectedDate) => {
+    if (!dob || !expectedDate) {
+      return 0;
     }
+
+    const birth = new Date(dob);
+    const expected = new Date(expectedDate);
+
+    if (isNaN(birth.getTime()) || isNaN(expected.getTime())) {
+      return 0;
+    }
+
+    if (birth >= expected) {
+      return 40;
+    }
+
+    const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+    const prematureWeeks = Math.floor((expected - birth) / millisecondsPerWeek);
+    const gestationalAgeAtBirth = 40 - prematureWeeks;
+
+    return Math.max(0, Math.min(40, gestationalAgeAtBirth));
+  };
+
+  useEffect(() => {
+    if (formData.isPremature === "yes") {
+      const gestationalAgeAtBirth = calculateGestationalAgeAtBirth(
+        formData.dob,
+        formData.expectedDate
+      );
+
+      setFormData((prev) => ({ ...prev, weeksPremature: gestationalAgeAtBirth }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, weeksPremature: 0 }));
   }, [formData.dob, formData.expectedDate, formData.isPremature]);
+
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      if (!phoneCountryDropdownRef.current?.contains(event.target)) {
+        setIsCountryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleDocumentClick);
+    return () => document.removeEventListener("mousedown", handleDocumentClick);
+  }, []);
 
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
+  };
+
+  const formatPhoneNumberWithCountry = (countryCode, phoneNumber) => {
+    const sanitizedPhone = String(phoneNumber || "").replace(/\D/g, "");
+    return sanitizedPhone ? `${countryCode} ${sanitizedPhone}` : "";
   };
 
   const handleInputChange = (e) => {
@@ -111,11 +162,17 @@ function AddChild() {
   const handleSubmit = async () => {
     const childValid = validateTab("child");
     const parentValid = validateTab("parent");
+    const formattedPhoneNumber = formatPhoneNumberWithCountry(selectedCountryCode, formData.phone);
     
-    if (childValid && parentValid) {
+    if (childValid && parentValid && formattedPhoneNumber) {
       try {
         const submissionData = new FormData();
-        Object.keys(formData).forEach(key => submissionData.append(key, formData[key]));
+        Object.keys(formData).forEach(key => {
+          if (key !== "phone") {
+            submissionData.append(key, formData[key]);
+          }
+        });
+        submissionData.append("phone", formattedPhoneNumber);
         if (selectedFile) submissionData.append("profileImage", selectedFile);
 
         const response = await axios.post("http://localhost:5000/api/Child-datas/add", submissionData);
@@ -275,7 +332,52 @@ function AddChild() {
                     <div className="form-input-group"><label>Last Name</label><input type="text" name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleInputChange} />{errors.lastName && <span className="error-msg">{errors.lastName}</span>}</div>
                     <div className="form-input-group"><label>Children</label><input type="text" name="childrenCount" placeholder="Ex. 2" value={formData.childrenCount} onChange={handleInputChange} />{errors.childrenCount && <span className="error-msg">{errors.childrenCount}</span>}</div>
                   </div>
-                  <div className="form-input-group"><label>Phone</label><input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInputChange} />{errors.phone && <span className="error-msg">{errors.phone}</span>}</div>
+                  <div className="form-input-group">
+                    <label>Phone</label>
+                    <div className="phone-input-wrapper child-phone-wrapper">
+                      <div className="country-code-dropdown" ref={phoneCountryDropdownRef}>
+                        <button
+                          type="button"
+                          className="country-code-trigger"
+                          onClick={() => setIsCountryDropdownOpen((previousState) => !previousState)}
+                        >
+                          <img
+                            src={`https://flagcdn.com/20x15/${COUNTRY_OPTIONS.find((country) => country.code === selectedCountryCode)?.iso || "us"}.png`}
+                            alt="Selected country"
+                            className="country-flag"
+                          />
+                          <span className="country-arrow">▾</span>
+                        </button>
+
+                        {isCountryDropdownOpen && (
+                          <ul className="country-code-menu">
+                            {COUNTRY_OPTIONS.map((country) => (
+                              <li key={country.code}>
+                                <button
+                                  type="button"
+                                  className="country-code-option"
+                                  onClick={() => {
+                                    setSelectedCountryCode(country.code);
+                                    setIsCountryDropdownOpen(false);
+                                  }}
+                                >
+                                  <img
+                                    src={`https://flagcdn.com/20x15/${country.iso}.png`}
+                                    alt={country.label}
+                                    className="country-flag"
+                                  />
+                                  <span>{country.code}</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      <span className="phone-code-prefix">{selectedCountryCode}</span>
+                      <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInputChange} inputMode="numeric" maxLength={15} />
+                    </div>
+                    {errors.phone && <span className="error-msg">{errors.phone}</span>}
+                  </div>
                   <div className="form-input-group"><label>Email</label><input type="email" name="email" placeholder="youremail@mail.com" value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
                   <div className="form-input-group">
                     <label>Relation</label>

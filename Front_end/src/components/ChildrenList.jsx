@@ -22,6 +22,58 @@ import "./ChildrenList.css";
 
 const ORDINAL_DOSE_PATTERN = /^(\d+)(st|nd|rd|th)$/i;
 
+const parseAgeLabelToMonths = (ageLabel = "") => {
+  const normalized = ageLabel.toLowerCase().trim();
+
+  if (!normalized || normalized === "birth" || normalized === "at birth") {
+    return 0;
+  }
+
+  const rangeMatch = normalized.match(/(\d+)\s*-\s*(\d+)\s*(week|month|year)s?/);
+  if (rangeMatch) {
+    const [, startValue, , unit] = rangeMatch;
+    const numericStart = Number.parseInt(startValue, 10);
+
+    if (unit.startsWith("week")) return numericStart / 4.345;
+    if (unit.startsWith("month")) return numericStart;
+    if (unit.startsWith("year")) return numericStart * 12;
+  }
+
+  const singleMatch = normalized.match(/(\d+)\s*(week|month|year)s?/);
+  if (singleMatch) {
+    const [, numericValue, unit] = singleMatch;
+    const parsedValue = Number.parseInt(numericValue, 10);
+
+    if (unit.startsWith("week")) return parsedValue / 4.345;
+    if (unit.startsWith("month")) return parsedValue;
+    if (unit.startsWith("year")) return parsedValue * 12;
+  }
+
+  return Number.MAX_SAFE_INTEGER;
+};
+
+const getChildAgeInMonths = (dobValue) => {
+  if (!dobValue) {
+    return 0;
+  }
+
+  const dob = new Date(dobValue);
+  const today = new Date();
+
+  if (Number.isNaN(dob.getTime())) {
+    return 0;
+  }
+
+  let months = (today.getFullYear() - dob.getFullYear()) * 12;
+  months += today.getMonth() - dob.getMonth();
+
+  if (today.getDate() < dob.getDate()) {
+    months -= 1;
+  }
+
+  return Math.max(months, 0);
+};
+
 const renderDoseText = (doseLabel) => {
   const trimmedDoseLabel = doseLabel?.trim() || "";
 
@@ -52,7 +104,7 @@ const renderDoseText = (doseLabel) => {
   );
 };
 
-const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
+const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId, childDob }) => {
   const [vaccinations, setVaccinations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -84,6 +136,7 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
   if (!isOpen) return null;
 
   const scheduleRows = buildVaccinationScheduleRows(vaccinations);
+  const childAgeInMonths = getChildAgeInMonths(childDob);
 
   return (
     <div className="vax-modal-overlay" onClick={onClose}>
@@ -128,22 +181,31 @@ const VaccinationScheduleModal = ({ isOpen, onClose, childName, childId }) => {
                     </td>
                     {VACCINATION_HEADERS.slice(1).map((headerLabel, idx) => {
                       const cellDoses = vaccine.doses.filter((item) => item.age === headerLabel);
+                      const isAgeReached = childAgeInMonths >= parseAgeLabelToMonths(headerLabel);
 
                       return (
                         <td key={idx}>
                           {cellDoses.length > 0 && (
                             <div className={`vax-dose-list ${cellDoses.length > 1 ? "multiple" : ""}`}>
                               {cellDoses.map((dose, doseIndex) => (
+                                (() => {
+                                  const indicatorStatusClass = dose.status === "done"
+                                    ? "done"
+                                    : (isAgeReached ? "pending" : "future");
+
+                                  return (
                                 <div
                                   key={`${dose.label}-${dose.status}-${dose.date || "no-date"}-${doseIndex}`}
                                   className={`vax-dose-card ${dose.status}-bg`}
                                 >
                                   <span className="vax-dose-text">{renderDoseText(dose.label)}</span>
-                                  <div className={`vax-status-indicator ${dose.status}`}>
+                                  <div className={`vax-status-indicator ${indicatorStatusClass}`}>
                                     {dose.status === "done" ? <FaCheck size={8} /> : <FaTimes size={8} />}
                                   </div>
                                   {dose.date && <span className="vax-date-text">{dose.date}</span>}
                                 </div>
+                                  );
+                                })()
                               ))}
                             </div>
                           )}
@@ -203,6 +265,7 @@ function ChildrenList() {
   const [isVaxModalOpen, setIsVaxModalOpen] = useState(false);
   const [selectedChildName, setSelectedChildName] = useState("");
   const [selectedChildId, setSelectedChildId] = useState(null);
+  const [selectedChildDob, setSelectedChildDob] = useState("");
   const [children, setChildren] = useState([]);
 
   useEffect(() => {
@@ -230,7 +293,7 @@ function ChildrenList() {
     if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
       years--; months += 12;
     }
-    return years < 1 ? `${months} Mos` : `${years} Yrs`;
+    return years < 1 ? `${months} Mons` : `${years} Yrs`;
   };
 
   const filteredChildren = children.filter(child =>
@@ -240,7 +303,7 @@ function ChildrenList() {
   return (
     <div className="dashboard-wrapper">
       <aside className="nurture-sidebar">
-        <div className="sidebar-header">
+        <div className="sidebar-header">  
           <img src={Logo} alt="Logo" className="main-logo" />
           <button className="header-grid-icon"><FaThLarge /></button>
         </div>
@@ -326,6 +389,7 @@ function ChildrenList() {
                             onClick={() => {
                               setSelectedChildId(child.id);
                               setSelectedChildName(child.childName);
+                              setSelectedChildDob(child.dob || "");
                               setIsVaxModalOpen(true);
                             }} 
                           />
@@ -363,6 +427,7 @@ function ChildrenList() {
         onClose={() => setIsVaxModalOpen(false)} 
         childName={selectedChildName} 
         childId={selectedChildId}
+        childDob={selectedChildDob}
       />
     </div>
   );

@@ -10,6 +10,45 @@ import { RiCalendarScheduleFill } from "react-icons/ri";
 import { MdArrowBack } from "react-icons/md";
 import "../components/AddParent.css";
 
+const COUNTRY_OPTIONS = [
+  { code: "+1", iso: "us", label: "United States" },
+  { code: "+91", iso: "in", label: "India" },
+  { code: "+44", iso: "gb", label: "United Kingdom" },
+  { code: "+61", iso: "au", label: "Australia" },
+  { code: "+971", iso: "ae", label: "UAE" }
+];
+
+const normalizePhone = (phoneValue = "") => phoneValue.replace(/\s+/g, "").trim();
+
+const parsePhoneNumberWithCountry = (phoneValue = "") => {
+  const cleanedValue = String(phoneValue).trim();
+  const defaultCountryCode = COUNTRY_OPTIONS[0].code;
+
+  if (!cleanedValue) {
+    return { countryCode: defaultCountryCode, phoneNumber: "" };
+  }
+
+  const matchedPhone = cleanedValue.match(/^(\+\d{1,4})\s*(.*)$/);
+  if (matchedPhone) {
+    const [, parsedCountryCode, remainingPhone] = matchedPhone;
+    const safeCountryCode = COUNTRY_OPTIONS.some((item) => item.code === parsedCountryCode)
+      ? parsedCountryCode
+      : defaultCountryCode;
+
+    return {
+      countryCode: safeCountryCode,
+      phoneNumber: remainingPhone.replace(/\D/g, "")
+    };
+  }
+
+  return { countryCode: defaultCountryCode, phoneNumber: cleanedValue.replace(/\D/g, "") };
+};
+
+const formatPhoneNumberWithCountry = (countryCode, phoneNumber) => {
+  const sanitizedPhone = String(phoneNumber || "").replace(/\D/g, "");
+  return sanitizedPhone ? `${countryCode} ${sanitizedPhone}` : "";
+};
+
 function AddParent() {
   const [activeTab, setActiveTab] = useState("parent");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -18,7 +57,10 @@ function AddParent() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadedImagePath, setUploadedImagePath] = useState(null);
+  const [selectedCountryCode, setSelectedCountryCode] = useState(COUNTRY_OPTIONS[0].code);
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const countryDropdownRef = useRef(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,12 +93,15 @@ function AddParent() {
 
   useEffect(() => {
     if (editData) {
+      const { countryCode, phoneNumber } = parsePhoneNumberWithCountry(editData.phoneNumber);
+      setSelectedCountryCode(countryCode);
+
       setParentData({
         firstName: editData.firstName || "",
         lastName: editData.lastName || "",
         childrenCount: editData.childrenCount || "",
         email: editData.email || "",
-        phoneNumber: editData.phoneNumber || "",
+        phoneNumber,
         relation: editData.relation || "",
         address1: editData.address1 || "",
         address2: editData.address2 || "",
@@ -90,6 +135,17 @@ function AddParent() {
       fetchChildren();
     }
   }, [editData]);
+
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      if (!countryDropdownRef.current?.contains(event.target)) {
+        setIsCountryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleDocumentClick);
+    return () => document.removeEventListener("mousedown", handleDocumentClick);
+  }, []);
 
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
@@ -139,29 +195,39 @@ function AddParent() {
 
   const handleParentChange = (e) => {
     const { name, value } = e.target;
-    setParentData({ ...parentData, [name]: value });
+    const updatedValue = name === "phoneNumber" ? value.replace(/\D/g, "") : value;
+    setParentData({ ...parentData, [name]: updatedValue });
   };
 
-  const calculateWeeks = (dob, edd) => {
+  const calculateGestationalAgeAtBirth = (dob, edd) => {
     if (!dob || !edd) return 0;
     const birth = new Date(dob);
     const expected = new Date(edd);
     if (isNaN(birth.getTime()) || isNaN(expected.getTime())) return 0;
-    const diffTime = expected - birth;
-    const weeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-    return weeks > 0 ? weeks : 0;
+    if (birth >= expected) return 40;
+
+    const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+    const prematureWeeks = Math.floor((expected - birth) / millisecondsPerWeek);
+    const gestationalAgeAtBirth = 40 - prematureWeeks;
+
+    return Math.max(0, Math.min(40, gestationalAgeAtBirth));
   };
 
   const handleChildChange = (index, e) => {
     const { name, value } = e.target;
     const updatedChildren = [...children];
     updatedChildren[index][name] = value;
-    if (name === "dob" || name === "expectedDeliveryDate") {
-      updatedChildren[index].weeksPremature = calculateWeeks(
-        name === "dob" ? value : updatedChildren[index].dob,
-        name === "expectedDeliveryDate" ? value : updatedChildren[index].expectedDeliveryDate
-      );
+
+    const currentDob = name === "dob" ? value : updatedChildren[index].dob;
+    const currentEdd = name === "expectedDeliveryDate" ? value : updatedChildren[index].expectedDeliveryDate;
+    const currentPrematureState = name === "premature" ? value : updatedChildren[index].premature;
+
+    if (name === "dob" || name === "expectedDeliveryDate" || name === "premature") {
+      updatedChildren[index].weeksPremature = currentPrematureState === "yes"
+        ? calculateGestationalAgeAtBirth(currentDob, currentEdd)
+        : 0;
     }
+
     setChildren(updatedChildren);
   };
 
@@ -192,15 +258,26 @@ function AddParent() {
   const handleSubmit = async () => {
     setIsSubmitted(true);
 
+    const formattedPhoneNumber = formatPhoneNumberWithCountry(
+      selectedCountryCode,
+      parentData.phoneNumber
+    );
+
+    if (!formattedPhoneNumber) {
+      return;
+    }
+
     const isDuplicateEmail = allParents.some(p => p.email.toLowerCase() === parentData.email.toLowerCase() && p.id !== editData?.id);
-    const isDuplicatePhone = allParents.some(p => p.phoneNumber === parentData.phoneNumber && p.id !== editData?.id);
+    const isDuplicatePhone = allParents.some(
+      (p) => normalizePhone(p.phoneNumber) === normalizePhone(formattedPhoneNumber) && p.id !== editData?.id
+    );
 
     if (isDuplicateEmail) return alert("Email already exists for another parent.");
     if (isDuplicatePhone) return alert("Phone number already exists for another parent.");
 
     if (children.every(validateChild)) {
       const payload = {
-        parentData: { ...parentData, profileImage: uploadedImagePath },
+        parentData: { ...parentData, phoneNumber: formattedPhoneNumber, profileImage: uploadedImagePath },
         children: children
       };
 
@@ -222,6 +299,7 @@ function AddParent() {
   };
 
   const today = new Date().toISOString().split("T")[0];
+  const selectedCountry = COUNTRY_OPTIONS.find((country) => country.code === selectedCountryCode) || COUNTRY_OPTIONS[0];
 
   return (
     <div className="dashboard-wrapper">
@@ -309,7 +387,56 @@ function AddParent() {
                     <div className="form-grid">
                       <div className="field-group">
                         <label>Phone Number</label>
-                        <input type="text" placeholder="Enter the Phone Number" name="phoneNumber" value={parentData.phoneNumber} onChange={handleParentChange} />
+                        <div className="phone-input-wrapper">
+                          <div className="country-code-dropdown" ref={countryDropdownRef}>
+                            <button
+                              type="button"
+                              className="country-code-trigger"
+                              onClick={() => setIsCountryDropdownOpen((previousState) => !previousState)}
+                            >
+                              <img
+                                src={`https://flagcdn.com/20x15/${selectedCountry.iso}.png`}
+                                alt={selectedCountry.label}
+                                className="country-flag"
+                              />
+                              <span className="country-arrow">▾</span>
+                            </button>
+
+                            {isCountryDropdownOpen && (
+                              <ul className="country-code-menu">
+                                {COUNTRY_OPTIONS.map((country) => (
+                                  <li key={country.code}>
+                                    <button
+                                      type="button"
+                                      className="country-code-option"
+                                      onClick={() => {
+                                        setSelectedCountryCode(country.code);
+                                        setIsCountryDropdownOpen(false);
+                                      }}
+                                    >
+                                      <img
+                                        src={`https://flagcdn.com/20x15/${country.iso}.png`}
+                                        alt={country.label}
+                                        className="country-flag"
+                                      />
+                                      <span>{country.code}</span>
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                          <span className="phone-code-prefix">{selectedCountry.code}</span>
+                          <input
+                            type="text"
+                            placeholder="Contact Number"
+                            name="phoneNumber"
+                            value={parentData.phoneNumber}
+                            onChange={handleParentChange}
+                            inputMode="numeric"
+                            maxLength={15}
+                          />
+                        </div>
                         {isSubmitted && !parentData.phoneNumber && <span className="err-msg">Field is Required</span>}
                       </div>
                       <div className="field-group">
@@ -370,7 +497,7 @@ function AddParent() {
                               </div>
                               <div className="field-group">
                                 <label>Number of weeks Premature</label>
-                                <input type="number" value={child.weeksPremature} readOnly />
+                                <input type="text" readOnly value={`${child.weeksPremature} Weeks`} className="readonly-input" />
                               </div>
                             </>
                           )}
@@ -379,7 +506,7 @@ function AddParent() {
                             <select name="gender" value={child.gender} onChange={(e) => handleChildChange(index, e)}>
                               <option value="">Select</option>
                               <option value="male">Male</option>
-                              <option value="female">Female</option>
+                                <option value="female">Female</option>
                             </select>
                             {isSubmitted && !child.gender && <span className="err-msg">Field is Required</span>}
                           </div>
@@ -402,7 +529,7 @@ function AddParent() {
                       {children.length > 1 && <button className="delete-child-btn" type="button" onClick={() => setChildren(children.slice(0, -1))}>× Delete Children</button>}
                       <button className="add-child-btn-alt" type="button" onClick={handleAddMoreChildren}>+ Add Children</button>
                     </div>
-                  </div>
+                  </div>  
                 )}
               </div>
 

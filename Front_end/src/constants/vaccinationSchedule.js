@@ -2,104 +2,104 @@ export const VACCINATION_SCHEDULE = [
   {
     age: "Birth",
     vaccines: [
-      { name: "BCG", type: "BCG", dose: "0th" },
+      { name: "BCG", dose: "0th" },
       { name: "Polio", type: "OPV", dose: "0th" },
-      { name: "Hepatitis B", type: "HepB", dose: "0th" }
+      { name: "Hepatitis B", dose: "0th" }
     ]
   },
   {
     age: "6 Weeks",
     vaccines: [
-      { name: "DTP", type: "DTwP", dose: "1st" },
+      { name: "DTP", dose: "1st" },
       { name: "Polio", type: "IPV", dose: "1st" },
-      { name: "Hib", type: "Hib", dose: "1st" },
-      { name: "Hepatitis B", type: "HepB", dose: "1st" },
-      { name: "Rotavirus", type: "RV", dose: "1st" },
-      { name: "Pneumococcal", type: "PCV", dose: "1st" }
+      { name: "Hib", dose: "1st" },
+      { name: "Hepatitis B", dose: "1st" },
+      { name: "Rotavirus", dose: "1st" },
+      { name: "Pneumococcal", dose: "1st" }
     ]
   },
   {
     age: "10 Weeks",
     vaccines: [
-      { name: "DTP", type: "DTwP", dose: "2nd" },
+      { name: "DTP", dose: "2nd" },
       { name: "Polio", type: "IPV", dose: "2nd" },
-      { name: "Hib", type: "Hib", dose: "2nd" },
-      { name: "Hepatitis B", type: "HepB", dose: "2nd" },
-      { name: "Rotavirus", type: "RV", dose: "2nd" },
-      { name: "Pneumococcal", type: "PCV", dose: "2nd" }
+      { name: "Hib", dose: "2nd" },
+      { name: "Hepatitis B", dose: "2nd" },
+      { name: "Rotavirus", dose: "2nd" },
+      { name: "Pneumococcal", dose: "2nd" }
     ]
   },
   {
     age: "14 Weeks",
     vaccines: [
-      { name: "DTP", type: "DTwP", dose: "3rd" },
+      { name: "DTP", dose: "3rd" },
       { name: "Polio", type: "IPV", dose: "3rd" },
-      { name: "Hib", type: "Hib", dose: "3rd" },
-      { name: "Rotavirus", type: "RV", dose: "3rd" },
-      { name: "Pneumococcal", type: "PCV", dose: "3rd" }
+      { name: "Hib", dose: "3rd" },
+      { name: "Rotavirus", dose: "3rd" },
+      { name: "Pneumococcal", dose: "3rd" }
     ]
   },
   {
     age: "6 Months",
     vaccines: [
       { name: "Polio", type: "OPV", dose: "Booster" },
-      { name: "Influenza", type: "Flu", dose: "1st" }
+      { name: "Influenza", dose: "1st" }
     ]
   },
   {
     age: "7 Months",
     vaccines: [
-      { name: "Influenza", type: "Flu", dose: "2nd" }
+      { name: "Influenza", dose: "2nd" }
     ]
   },
   {
     age: "9 Months",
     vaccines: [
-      { name: "MMR", type: "MMR", dose: "1st" },
-      { name: "Japanese Encephalitis", type: "JE", dose: "1st" }
+      { name: "MMR", dose: "1st" },
+      { name: "Japanese Encephalitis", dose: "1st" }
     ]
   },
   {
     age: "12 Months",
     vaccines: [
-      { name: "Hepatitis A", type: "HepA", dose: "1st" }
+      { name: "Hepatitis A", dose: "1st" }
     ]
   },
   {
     age: "15 Months",
     vaccines: [
-      { name: "MMR", type: "MMR", dose: "2nd" },
-      { name: "Varicella", type: "Varicella", dose: "1st" },
-      { name: "Pneumococcal", type: "PCV", dose: "Booster" }
+      { name: "MMR", dose: "2nd" },
+      { name: "Varicella", dose: "1st" },
+      { name: "Pneumococcal", dose: "Booster" }
     ]
   },
   {
     age: "16-18 Months",
     vaccines: [
-      { name: "DTP", type: "DTwP", dose: "Booster" },
+      { name: "DTP", dose: "Booster" },
       { name: "Polio", type: "IPV", dose: "Booster" },
-      { name: "Hib", type: "Hib", dose: "Booster" }
+      { name: "Hib", dose: "Booster" }
     ]
   },
   {
     age: "18 Months",
     vaccines: [
-      { name: "Hepatitis A", type: "HepA", dose: "2nd" }
+      { name: "Hepatitis A", dose: "2nd" }
     ]
   },
   {
     age: "2 Years",
     vaccines: [
-      { name: "Typhoid", type: "TCV", dose: "1st" }
+      { name: "Typhoid", dose: "1st" }
     ]
   },
   {
     age: "4-6 Years",
     vaccines: [
-      { name: "DTP", type: "DTaP", dose: "Booster" },
+      { name: "DTP", dose: "Booster" },
       { name: "Polio", type: "OPV", dose: "Booster" },
-      { name: "MMR", type: "MMR", dose: "3rd" },
-      { name: "Varicella", type: "Varicella", dose: "2nd" }
+      { name: "MMR", dose: "3rd" },
+      { name: "Varicella", dose: "2nd" }
     ]
   }
 ];
@@ -124,7 +124,8 @@ VACCINATION_SCHEDULE.forEach((section) => {
 
     existingEntry.schedule.push({
       age: section.age,
-      type: vaccine.type,
+      type: vaccine.type || "",
+      hasExplicitType: Boolean(vaccine.type),
       dose: vaccine.dose
     });
 
@@ -166,11 +167,15 @@ export const getVaccinationTypeOptions = (vaccinationName, ageLabel = "") => {
     selectedVaccination.schedule
       .filter((dose) => {
         if (!hasAgeSelection) {
-          return true;
+          return Boolean(dose.hasExplicitType);
         }
 
         const doseAgeOrder = AGE_ORDER_BY_LABEL.get(dose.age);
-        return typeof doseAgeOrder === "number" && doseAgeOrder <= selectedAgeOrder;
+        return (
+          Boolean(dose.hasExplicitType) &&
+          typeof doseAgeOrder === "number" &&
+          doseAgeOrder <= selectedAgeOrder
+        );
       })
       .map((dose) => dose.type)
   )];
@@ -261,11 +266,12 @@ export const buildVaccinationScheduleRows = (records = []) => {
 
   VACCINATION_SCHEDULE.forEach((section) => {
     section.vaccines.forEach((vaccine) => {
-      const rowKey = getScheduleRowKey(vaccine.name, vaccine.type);
+      const vaccinationType = vaccine.type || "";
+      const rowKey = getScheduleRowKey(vaccine.name, vaccinationType);
       const existingRow = scheduleRowMap.get(rowKey) || {
-        name: `${vaccine.name} (${vaccine.type})`,
+        name: vaccinationType ? `${vaccine.name} (${vaccinationType})` : vaccine.name,
         vaccination_name: vaccine.name,
-        vaccination_type: vaccine.type,
+        vaccination_type: vaccinationType,
         doses: []
       };
 
@@ -281,7 +287,7 @@ export const buildVaccinationScheduleRows = (records = []) => {
       scheduleRowMap.set(rowKey, existingRow);
 
       scheduledDoseMap.set(
-        getScheduleDoseKey(vaccine.name, vaccine.type, section.age, vaccine.dose),
+        getScheduleDoseKey(vaccine.name, vaccinationType, section.age, vaccine.dose),
         doseEntry
       );
 

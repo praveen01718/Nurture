@@ -42,6 +42,7 @@ function AddMeasurement() {
   const [latestMeasurement, setLatestMeasurement] = useState(null);
   const [weight, setWeight] = useState("");
   const [length, setLength] = useState("");
+  const [headCircumference, setHeadCircumference] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [ageBy, setAgeBy] = useState("Date");
   const [bmi, setBmi] = useState("");
@@ -81,7 +82,25 @@ function AddMeasurement() {
       years--;
       months += 12;
     }
-    setDisplayAge(`${years} Yrs`);
+    setDisplayAge(years < 1 ? `${months} Mons` : `${years} Yrs`);
+  };
+
+  const getChildAgeInMonths = (dobString) => {
+    if (!dobString) return null;
+
+    const dob = new Date(dobString);
+    const today = new Date();
+
+    if (Number.isNaN(dob.getTime())) return null;
+
+    let months = (today.getFullYear() - dob.getFullYear()) * 12;
+    months += today.getMonth() - dob.getMonth();
+
+    if (today.getDate() < dob.getDate()) {
+      months -= 1;
+    }
+
+    return Math.max(months, 0);
   };
 
   useEffect(() => {
@@ -150,7 +169,9 @@ function AddMeasurement() {
       child_id: childId,
       weight: parseFloat(weight),
       length: parseFloat(length),
-      head_circumference: 0,
+      head_circumference: isHeadCircumferenceApplicable
+        ? (parseFloat(headCircumference) || 0)
+        : 0,
       bmi: parseFloat(bmi),
       measurement_date: selectedDate,
       age_type: ageBy,
@@ -179,6 +200,8 @@ function AddMeasurement() {
     latestMeasurement?.weight ?? childData?.weight ?? fallbackMeasurement.weight;
   const displayLength =
     latestMeasurement?.length ?? childData?.length ?? fallbackMeasurement.length;
+  const childAgeInMonths = getChildAgeInMonths(childData?.dob);
+  const isHeadCircumferenceApplicable = childAgeInMonths !== null && childAgeInMonths <= 24;
   const genderText = childData?.gender?.toLowerCase();
   const isBoy = genderText?.includes("boy") || genderText === "male";
   const isGirl = genderText?.includes("girl") || genderText === "female";
@@ -329,6 +352,20 @@ function AddMeasurement() {
                     <span className="addon-text">cm</span>
                   </div>
                 </div>
+                {isHeadCircumferenceApplicable && (
+                  <div className="form-field">
+                    <label>Head Circumference</label>
+                    <div className="input-with-addon">
+                      <input
+                        type="number"
+                        placeholder="Enter head circumference"
+                        value={headCircumference}
+                        onChange={(e) => setHeadCircumference(e.target.value)}
+                      />
+                      <span className="addon-text">cm</span>
+                    </div>
+                  </div>
+                )}
                 <div className="form-field">
                   <label>Body Mass Index (BMI)</label>
                   <div className="input-with-addon">
@@ -339,7 +376,7 @@ function AddMeasurement() {
               </div>
 
               <div className="measurement-actions">
-                <button type="button" className="btn-reset" onClick={() => {setWeight(""); setLength("");}}>
+                <button type="button" className="btn-reset" onClick={() => {setWeight(""); setLength(""); setHeadCircumference("");}}>
                   <FaArrowLeft /> Reset
                 </button>
                 <button type="submit" className="btn-submit">

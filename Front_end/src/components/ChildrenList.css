@@ -536,6 +536,10 @@ th.vax-sticky-col {
   background-color: #dc3545; 
 }
 
+.vax-status-indicator.future {
+  background-color: #9ca3af;
+}
+
 
 
 .vax-table-state {

@@ -4,14 +4,14 @@ exports.addVaccination = async (req, res) => {
   try {
     const childId = Number(req.body.child_id);
     const vaccinationName = req.body.vaccination_name?.trim();
-    const vaccinationType = req.body.vaccination_type?.trim();
+    const vaccinationType = req.body.vaccination_type?.trim() || '';
     const ageLabel = req.body.age_label?.trim();
     const doseLabel = req.body.dose_label?.trim();
     const vaccinationDate = req.body.vaccination_date;
 
-    if (!Number.isInteger(childId) || childId <= 0 || !vaccinationName || !vaccinationType || !ageLabel || !doseLabel || !vaccinationDate) {
+    if (!Number.isInteger(childId) || childId <= 0 || !vaccinationName || !ageLabel || !doseLabel || !vaccinationDate) {
       return res.status(400).json({
-        message: 'Missing required fields: child_id, vaccination_name, vaccination_type, age_label, dose_label, and vaccination_date are mandatory.'
+        message: 'Missing required fields: child_id, vaccination_name, age_label, dose_label, and vaccination_date are mandatory.'
       });
     }
 
