@@ -43,7 +43,7 @@ function AddMeasurement() {
   const [weight, setWeight] = useState("");
   const [length, setLength] = useState("");
   const [headCircumference, setHeadCircumference] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState("");
   const [ageBy, setAgeBy] = useState("Date");
   const [bmi, setBmi] = useState("");
   const [displayAge, setDisplayAge] = useState("");
@@ -302,10 +302,30 @@ function AddMeasurement() {
                   <label>Age by</label>
                   <div className="radio-container">
                     <label>
-                      <input type="radio" name="ageBy" value="Range" checked={ageBy === "Range"} onChange={(e) => setAgeBy(e.target.value)} /> Range
+                      <input
+                        type="radio"
+                        name="ageBy"
+                        value="Range"
+                        checked={ageBy === "Range"}
+                        onChange={(e) => {
+                          setAgeBy(e.target.value);
+                          setSelectedDate("");
+                        }}
+                      />
+                      Range
                     </label>
                     <label>
-                      <input type="radio" name="ageBy" value="Date" checked={ageBy === "Date"} onChange={(e) => setAgeBy(e.target.value)} /> Date
+                      <input
+                        type="radio"
+                        name="ageBy"
+                        value="Date"
+                        checked={ageBy === "Date"}
+                        onChange={(e) => {
+                          setAgeBy(e.target.value);
+                          setSelectedDate("");
+                        }}
+                      />
+                      Date
                     </label>
                   </div>
                 </div>
@@ -317,6 +337,7 @@ function AddMeasurement() {
                       <input 
                         type="date" 
                         value={selectedDate} 
+                        placeholder="dd-mm-yyyy"
                         min={childData?.dob ? new Date(childData.dob).toISOString().split('T')[0] : ""}
                         max={new Date().toISOString().split('T')[0]}
                         onChange={(e) => setSelectedDate(e.target.value)} 
@@ -328,7 +349,7 @@ function AddMeasurement() {
                         value={selectedDate} 
                         onChange={(e) => setSelectedDate(e.target.value)}
                       >
-                        <option value=""> Choose a Range</option>
+                        <option value="">dd-mm-yyyy</option>
                         {generateRangeOptions().map((opt, i) => (
                           <option key={i} value={opt.value}>{opt.label}</option>
                         ))}
@@ -376,7 +397,16 @@ function AddMeasurement() {
               </div>
 
               <div className="measurement-actions">
-                <button type="button" className="btn-reset" onClick={() => {setWeight(""); setLength(""); setHeadCircumference("");}}>
+                <button
+                  type="button"
+                  className="btn-reset"
+                  onClick={() => {
+                    setWeight("");
+                    setLength("");
+                    setHeadCircumference("");
+                    setSelectedDate("");
+                  }}
+                >
                   <FaArrowLeft /> Reset
                 </button>
                 <button type="submit" className="btn-submit">

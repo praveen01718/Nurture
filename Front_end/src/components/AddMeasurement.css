@@ -251,7 +251,8 @@ body {
 }
 
 .input-with-addon input {
-  flex: 1;
+  flex: 0 0 70%;
+  width: 70%;
   border: none;
   padding: 0 15px;
   outline: none;
@@ -271,13 +272,14 @@ body {
 }
 
 .addon-text {
-  background: #f8f9fa;
-  padding: 0 45px;
+  background: #F8F9FA;
+  flex: 0 0 30%;
+  width: 30%;
+  padding: 0 12px;
   display: flex;
   font-weight: 600;
   color: #777;
   border-left: 1px solid var(--border-color);
-  min-width: 60px;
   font-size: 12px;
   justify-content: center;
   align-items: center;
