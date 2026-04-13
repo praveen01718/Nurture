@@ -328,10 +328,6 @@ body {
   transition: 0.2s;
 }
 
-.btn-submit:hover {
-  background: #1bc5df;
-  transform: translateY(-1px);
-}
 
 .radio-container{
   display: flex;
