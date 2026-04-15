@@ -11,6 +11,7 @@ import ChildrenList from './components/ChildrenList'
 import AddChild from './components/AddChild'
 import AddMeasurement from './components/AddMeasurement'
 import AddVaccination from './components/AddVaccination'
+import VaccinationSchedule from './components/VaccinationSchedule'
 
 const route = () => {
   return (
@@ -27,6 +28,9 @@ const route = () => {
         <Route path="/Home/children/add_child" element={<AddChild />} />
         <Route path="/Home/children/:childId/add_measurement" element={<AddMeasurement />} />
         <Route path="/Home/children/:childId/add_vaccination" element={<AddVaccination />} />
+        <Route path="/Home/vaccination" element={<VaccinationSchedule />} />
+        <Route path="/Home/vaccination/upcoming" element={<VaccinationSchedule />} />
+        <Route path="/Home/vaccination/missed" element={<VaccinationSchedule />} />
 
       </Routes>
     </BrowserRouter>

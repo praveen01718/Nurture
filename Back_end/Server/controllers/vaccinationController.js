@@ -1,5 +1,53 @@
 const { Vaccination, ChildrenProfile } = require('../models');
 
+exports.getVaccinationScheduleData = async (req, res) => {
+  try {
+    const children = await ChildrenProfile.findAll({
+      attributes: [
+        'id',
+        'childName',
+        'dob',
+        'gender',
+        'profileImage',
+        'firstName',
+        'lastName',
+        'phone',
+        'email'
+      ],
+      include: [
+        {
+          model: Vaccination,
+          as: 'vaccinations',
+          attributes: [
+            'id',
+            'child_id',
+            'vaccination_name',
+            'vaccination_type',
+            'age_label',
+            'dose_label',
+            'vaccination_date',
+            'createdAt'
+          ],
+          required: false,
+          separate: true,
+          order: [
+            ['vaccination_date', 'DESC'],
+            ['createdAt', 'DESC']
+          ]
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    return res.status(200).json(children);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error retrieving vaccination schedule data',
+      error: error.message
+    });
+  }
+};
+
 exports.addVaccination = async (req, res) => {
   try {
     const childId = Number(req.body.child_id);

@@ -122,6 +122,59 @@ const addDurationToDate = (baseDate, ageLabel) => {
   return comparisonDate;
 };
 
+const addDurationToUtcDate = (baseDate, ageLabel) => {
+  const comparisonDate = new Date(baseDate);
+  const normalizedAge = ageLabel.toLowerCase().trim();
+  const numericValue = Number.parseInt(normalizedAge, 10);
+
+  if (normalizedAge === "birth" || normalizedAge === "at birth") {
+    return comparisonDate;
+  }
+
+  if (normalizedAge.includes("week")) {
+    comparisonDate.setUTCDate(comparisonDate.getUTCDate() + (numericValue * 7));
+    return comparisonDate;
+  }
+
+  if (normalizedAge.includes("month")) {
+    comparisonDate.setUTCMonth(comparisonDate.getUTCMonth() + numericValue);
+    return comparisonDate;
+  }
+
+  if (normalizedAge.includes("year")) {
+    comparisonDate.setUTCFullYear(comparisonDate.getUTCFullYear() + numericValue);
+    return comparisonDate;
+  }
+
+  return comparisonDate;
+};
+
+const toUtcDateOnly = (dateValue) => {
+  const parsedDate = parseDateValue(dateValue);
+
+  if (!parsedDate) {
+    return null;
+  }
+
+  return new Date(Date.UTC(
+    parsedDate.getFullYear(),
+    parsedDate.getMonth(),
+    parsedDate.getDate()
+  ));
+};
+
+const fromUtcDateOnly = (utcDate) => {
+  if (!utcDate || Number.isNaN(utcDate.getTime())) {
+    return null;
+  }
+
+  return new Date(
+    utcDate.getUTCFullYear(),
+    utcDate.getUTCMonth(),
+    utcDate.getUTCDate()
+  );
+};
+
 const getEligibleAgeOptions = (dobString, vaccinationDateString, allAgeLabels) => {
   if (!dobString || !vaccinationDateString) {
     return [];
@@ -478,6 +531,52 @@ function AddVaccination() {
     return selectedDoseIndex > 0 ? orderedDoseEntries[selectedDoseIndex - 1] : null;
   };
 
+  const getDoseEligibilityDateFromPreviousDose = (
+    vaccinationName,
+    vaccinationType = "",
+    doseLabel = "",
+    previousDoseVaccinationDate
+  ) => {
+    if (!vaccinationName || !doseLabel || !previousDoseVaccinationDate) {
+      return null;
+    }
+
+    const orderedDoseEntries = getOrderedScheduledDoseEntries(vaccinationName, vaccinationType);
+    const currentScheduledDoseEntry = orderedDoseEntries.find(
+      (doseEntry) => normalizeValue(doseEntry.dose) === normalizeValue(doseLabel)
+    );
+    const previousScheduledDoseEntry = getPreviousScheduledDoseEntry(
+      vaccinationName,
+      vaccinationType,
+      doseLabel
+    );
+    const previousDoseVaccinationUtcDate = toUtcDateOnly(previousDoseVaccinationDate);
+
+    if (!currentScheduledDoseEntry || !previousScheduledDoseEntry || !previousDoseVaccinationUtcDate) {
+      return null;
+    }
+
+    const referenceUtcDate = new Date(Date.UTC(2000, 0, 1));
+    const previousScheduledUtcDate = addDurationToUtcDate(
+      referenceUtcDate,
+      previousScheduledDoseEntry.age
+    );
+    const currentScheduledUtcDate = addDurationToUtcDate(
+      referenceUtcDate,
+      currentScheduledDoseEntry.age
+    );
+    const scheduleIntervalInMs =
+      currentScheduledUtcDate.getTime() - previousScheduledUtcDate.getTime();
+    const safeScheduleIntervalInMs = Number.isFinite(scheduleIntervalInMs)
+      ? Math.max(scheduleIntervalInMs, 0)
+      : 0;
+    const eligibleVaccinationUtcDate = new Date(
+      previousDoseVaccinationUtcDate.getTime() + safeScheduleIntervalInMs
+    );
+
+    return fromUtcDateOnly(eligibleVaccinationUtcDate);
+  };
+
   const getLatestDoseVaccinationDate = (
     vaccinationName,
     vaccinationType = "",
@@ -826,7 +925,7 @@ function AddVaccination() {
     return "";
   };
 
-  const getPreviousDoseVaccinatedError = (entry, entryIndex, entries = formValues.entries) => {
+  const getDoseDateEligibilityError = (entry, entryIndex, entries = formValues.entries) => {
     if (!entry?.vaccinationDate || !entry?.age || !entry?.vaccinationName || !entry?.doseLabel) {
       return "";
     }
@@ -852,7 +951,7 @@ function AddVaccination() {
     }
 
     const immediatePreviousDose = orderedDoseOptions[selectedDoseIndex - 1];
-    const selectedVaccinationDate = parseDateValue(entry.vaccinationDate);
+    const selectedVaccinationDate = toUtcDateOnly(entry.vaccinationDate);
 
     if (!immediatePreviousDose || !selectedVaccinationDate) {
       return "";
@@ -865,9 +964,29 @@ function AddVaccination() {
       entryIndex,
       entries
     );
+    const eligibleVaccinationDate = latestPreviousDoseDate
+      ? getDoseEligibilityDateFromPreviousDose(
+          entry.vaccinationName,
+          entry.vaccinationType,
+          entry.doseLabel,
+          latestPreviousDoseDate
+        )
+      : null;
 
-    if (latestPreviousDoseDate && latestPreviousDoseDate > selectedVaccinationDate) {
+    if (
+      latestPreviousDoseDate &&
+      (
+        (eligibleVaccinationDate && selectedVaccinationDate < toUtcDateOnly(eligibleVaccinationDate)) ||
+        (!eligibleVaccinationDate && toUtcDateOnly(latestPreviousDoseDate) > selectedVaccinationDate)
+      )
+    ) {
       const formattedDate = formatVaccinationDate(latestPreviousDoseDate);
+      const formattedEligibleDate = formatVaccinationDate(eligibleVaccinationDate);
+
+      if (formattedDate && formattedEligibleDate) {
+        return `The ${immediatePreviousDose} dose is vaccinated on ${formattedDate}.`;
+      }
+
       return formattedDate
         ? `The ${immediatePreviousDose} dose is vaccinated on ${formattedDate}.`
         : `The ${immediatePreviousDose} dose is vaccinated.`;
@@ -1016,6 +1135,9 @@ function AddVaccination() {
   const getEntryValidationErrors = (entry, entryIndex, entries = formValues.entries) => {
     const entryErrors = {};
     const vaccinationTypeOptions = getVaccinationTypeOptions(entry, entryIndex, entries);
+    const doseSequenceError = getDoseSequenceError(entry, entryIndex, entries);
+    const doseDateEligibilityError = getDoseDateEligibilityError(entry, entryIndex, entries);
+    const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex, entries);
 
     if (!entry.vaccinationDate) entryErrors.vaccinationDate = "Field is Required";
     if (!entry.age) entryErrors.age = "Field is Required";
@@ -1024,6 +1146,9 @@ function AddVaccination() {
       entryErrors.vaccinationType = "Field is Required";
     }
     if (!entry.doseLabel) entryErrors.doseLabel = "Field is Required";
+    if (doseSequenceError) entryErrors.doseSequence = doseSequenceError;
+    if (doseDateEligibilityError) entryErrors.doseDateEligibility = doseDateEligibilityError;
+    if (sameDayVaccinationError) entryErrors.sameDayVaccination = sameDayVaccinationError;
 
     return entryErrors;
   };
@@ -1391,18 +1516,27 @@ function AddVaccination() {
                   formValues.entries
                 );
                 const doseOptions = getDoseOptions(entry);
-                const sameDayVaccinationError = getSameDayVaccinationError(entry, entryIndex);
-                const previousDoseVaccinatedError = getPreviousDoseVaccinatedError(
-                  entry,
-                  entryIndex,
-                  formValues.entries
-                );
+                const doseSequenceError =
+                  entryErrors.doseSequence ||
+                  getDoseSequenceError(entry, entryIndex, formValues.entries);
+                const sameDayVaccinationError =
+                  entryErrors.sameDayVaccination ||
+                  getSameDayVaccinationError(entry, entryIndex, formValues.entries);
+                const doseDateEligibilityError =
+                  entryErrors.doseDateEligibility ||
+                  getDoseDateEligibilityError(
+                    entry,
+                    entryIndex,
+                    formValues.entries
+                  );
+                const previousDoseVaccinatedError = doseDateEligibilityError;
                 const duplicateVaccinationError = hasDuplicateVaccination(entry)
                   ? "Already Vaccinated ."
                   : "";
                 const duplicateEntryError = getDuplicateEntryError(entryIndex, formValues.entries);
                 const displayedDoseError =
                   entryErrors.doseLabel ||
+                  doseSequenceError ||
                   previousDoseVaccinatedError ||
                   duplicateVaccinationError ||
                   duplicateEntryError ||
