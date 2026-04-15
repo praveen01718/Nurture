@@ -882,7 +882,7 @@ function VaccinationSchedule() {
                     <div className="vaccination-modal-item-content">
                       <p className="vaccination-modal-item-title">{item.vaccineTitle}</p>
                       <p className="vaccination-modal-item-label">
-                        {selectedModalRow.status === "upcoming" ? "Scheduled Date" : "Due Date"}
+                        {selectedModalRow.status === "upcoming" ? "Scheduled Date" : "Scheduled Date"}
                       </p>
                     </div>
                     <span className="vaccination-modal-item-date">{formatDate(item.dueDate)}</span>
