@@ -11,6 +11,9 @@ import {
   FaSearch,
   FaPhoneAlt,
   FaEnvelope,
+  FaUser,
+  FaChevronLeft,
+  FaChevronRight,
   FaAngleDown,
   FaTimes
 } from "react-icons/fa";
@@ -24,14 +27,30 @@ const API_BASE = "http://localhost:5000";
 
 const normalizeValue = (value) => String(value || "").trim().toLowerCase();
 
+const normalizeAgeValue = (value) =>
+  normalizeValue(value)
+    .replace(/\s+/g, " ")
+    .replace(/\bat birth\b/g, "birth")
+    .replace(/\bweeks\b/g, "week")
+    .replace(/\bmonths\b/g, "month")
+    .replace(/\byears\b/g, "year");
+
+const toDateObject = (dateValue) => {
+  if (dateValue instanceof Date) {
+    return new Date(dateValue);
+  }
+
+  if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    return new Date(`${dateValue}T00:00:00`);
+  }
+
+  return new Date(dateValue);
+};
+
 const parseDate = (dateValue) => {
   if (!dateValue) return null;
 
-  const normalizedDate =
-    typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)
-      ? `${dateValue}T00:00:00`
-      : dateValue;
-  const parsedDate = new Date(normalizedDate);
+  const parsedDate = toDateObject(dateValue);
 
   if (Number.isNaN(parsedDate.getTime())) {
     return null;
@@ -138,13 +157,13 @@ const getVaccineSequenceKey = (vaccine) =>
   `${normalizeValue(vaccine.name)}::${normalizeValue(vaccine.type || "")}`;
 
 const toStartOfDay = (dateValue) => {
-  const date = new Date(dateValue);
+  const date = toDateObject(dateValue);
   date.setHours(0, 0, 0, 0);
   return date;
 };
 
 const toEndOfDay = (dateValue) => {
-  const date = new Date(dateValue);
+  const date = toDateObject(dateValue);
   date.setHours(23, 59, 59, 999);
   return date;
 };
@@ -214,7 +233,8 @@ function VaccinationSchedule() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [selectedModalRow, setSelectedModalRow] = useState(null);
-  const [modalItemLimit, setModalItemLimit] = useState(5);
+  const [modalItemLimit, setModalItemLimit] = useState(2);
+  const [modalCurrentPage, setModalCurrentPage] = useState(1);
 
   const [startDate, setStartDate] = useState(() => formatForInput(DEFAULT_THIS_MONTH_RANGE.startDate));
   const [endDate, setEndDate] = useState(() => formatForInput(DEFAULT_THIS_MONTH_RANGE.endDate));
@@ -297,20 +317,28 @@ function VaccinationSchedule() {
       const targetName = normalizeValue(vaccine.name);
       const targetType = normalizeValue(vaccine.type || "");
       const targetDose = normalizeValue(vaccine.dose);
-      const targetAge = normalizeValue(ageLabel);
+      const targetAge = normalizeAgeValue(ageLabel);
 
-      return records.find((record) => {
+      const matchesDose = (record) => {
         const recordNameMatches = normalizeValue(record.vaccination_name) === targetName;
         const recordDoseMatches = normalizeValue(record.dose_label) === targetDose;
-        const recordAgeMatches = normalizeValue(record.age_label) === targetAge;
+        const recordAgeMatches = normalizeAgeValue(record.age_label) === targetAge;
+
+        return recordNameMatches && recordDoseMatches && recordAgeMatches;
+      };
+
+      const matchesType = (record) => {
         const recordTypeValue = normalizeValue(record.vaccination_type || "");
 
-        const recordTypeMatches = targetType
+        return targetType
           ? recordTypeValue === targetType
           : !recordTypeValue || recordTypeValue === targetType;
+      };
 
-        return recordNameMatches && recordDoseMatches && recordAgeMatches && recordTypeMatches;
-      });
+      return (
+        records.find((record) => matchesDose(record) && matchesType(record)) ||
+        records.find((record) => matchesDose(record) && !normalizeValue(record.vaccination_type || ""))
+      );
     };
 
     const scheduleEntriesByVaccine = new Map();
@@ -355,8 +383,7 @@ function VaccinationSchedule() {
           return;
         }
 
-        let dueDate = pendingWindowFromDob.startDate;
-        let missedCutoff = pendingWindowFromDob.endDate;
+        let scheduledDate = pendingWindowFromDob.startDate;
 
         if (nextPendingIndex > 0) {
           const previousEntry = orderedEntries[nextPendingIndex - 1];
@@ -367,24 +394,15 @@ function VaccinationSchedule() {
           if (previousVaccinatedDate && previousWindowFromDob) {
             const startOffsetMs =
               pendingWindowFromDob.startDate.getTime() - previousWindowFromDob.startDate.getTime();
-            const endOffsetMs =
-              pendingWindowFromDob.endDate.getTime() - previousWindowFromDob.startDate.getTime();
 
-            dueDate = toStartOfDay(previousVaccinatedDate.getTime() + startOffsetMs);
-            missedCutoff = toEndOfDay(previousVaccinatedDate.getTime() + endOffsetMs);
+            scheduledDate = toStartOfDay(previousVaccinatedDate.getTime() + startOffsetMs);
           }
         }
 
-        const isMissed = missedCutoff < now;
-        const isUpcoming = !isMissed;
+        const isMissed = scheduledDate < now;
 
-        // Skip date filtering if user hasn't selected dates yet
         if (startBoundary && endBoundary) {
-          if (isUpcoming && (dueDate < startBoundary || dueDate > endBoundary)) {
-            return;
-          }
-
-          if (isMissed && (missedCutoff < startBoundary || missedCutoff > endBoundary)) {
+          if (scheduledDate < startBoundary || scheduledDate > endBoundary) {
             return;
           }
         }
@@ -401,7 +419,7 @@ function VaccinationSchedule() {
           parentEmail: child.email || "--",
           vaccineTitle: getVaccinationTitle(pendingEntry.vaccine),
           scheduleAge: pendingEntry.sectionAge,
-          dueDate: isMissed ? missedCutoff : dueDate
+          dueDate: scheduledDate
         });
       });
     });
@@ -506,11 +524,13 @@ function VaccinationSchedule() {
     }
 
     setSelectedModalRow(row);
-    setModalItemLimit(5);
+    setModalItemLimit(2);
+    setModalCurrentPage(1);
   };
 
   const closeMoreModal = () => {
     setSelectedModalRow(null);
+    setModalCurrentPage(1);
   };
 
   const openDateSelector = () => {
@@ -562,6 +582,22 @@ function VaccinationSchedule() {
   };
 
   const modalVaccinations = selectedModalRow?.vaccinationItems || [];
+  const modalTotalPages = Math.max(1, Math.ceil(modalVaccinations.length / modalItemLimit));
+  const modalStartIndex = (modalCurrentPage - 1) * modalItemLimit;
+  const visibleModalVaccinations = modalVaccinations.slice(
+    modalStartIndex,
+    modalStartIndex + modalItemLimit
+  );
+
+  useEffect(() => {
+    setModalCurrentPage(1);
+  }, [modalItemLimit, selectedModalRow]);
+
+  useEffect(() => {
+    if (modalCurrentPage > modalTotalPages) {
+      setModalCurrentPage(modalTotalPages);
+    }
+  }, [modalCurrentPage, modalTotalPages]);
 
   useEffect(() => {
     if (!selectedModalRow) {
@@ -829,6 +865,8 @@ function VaccinationSchedule() {
                     onChange={(event) => setModalItemLimit(Number(event.target.value))}
                     aria-label="Number of vaccinations to show"
                   >
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
                     <option value={5}>5</option>
                     <option value={10}>10</option>
                     <option value={15}>15</option>
@@ -837,7 +875,7 @@ function VaccinationSchedule() {
               </div>
 
               <div className="vaccination-modal-list">
-                {modalVaccinations.slice(0, modalItemLimit).map((item, index) => (
+                {visibleModalVaccinations.map((item, index) => (
                   <div className="vaccination-modal-item" key={`${item.vaccineTitle}-${item.scheduleAge}-${index}`}>
                     <div className="vaccination-modal-item-content">
                       <p className="vaccination-modal-item-title">{item.vaccineTitle}</p>
@@ -849,6 +887,32 @@ function VaccinationSchedule() {
                   </div>
                 ))}
               </div>
+
+              {modalVaccinations.length > modalItemLimit ? (
+                <div className="vaccination-modal-pagination" aria-label="Vaccination modal pagination">
+                  <button
+                    type="button"
+                    className="vaccination-modal-pagination-btn"
+                    onClick={() => setModalCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={modalCurrentPage === 1}
+                    aria-label="Previous modal page"
+                  >
+                    <FaChevronLeft className="vaccination-modal-pagination-btn-icon"/>;
+                  </button>
+                  <span className="vaccination-modal-pagination-label">
+                    Page {modalCurrentPage}/{modalTotalPages}
+                  </span>
+                  <button
+                    type="button"
+                    className="vaccination-modal-pagination-btn"
+                    onClick={() => setModalCurrentPage((page) => Math.min(modalTotalPages, page + 1))}
+                    disabled={modalCurrentPage === modalTotalPages}
+                    aria-label="Next modal page"
+                  >
+                    <FaChevronRight className="vaccination-modal-pagination-btn-icon"/>;
+                  </button>
+                </div>
+              ) : null}
             </div>
             
             <div className="vaccination-modal-section-footer-divider" />

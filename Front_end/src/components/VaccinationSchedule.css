@@ -192,7 +192,7 @@
   right: 0;
   z-index: 50;
   width: min(540px, calc(100vw - 20px));
-  max-height: min(355px, calc(100vh - 120px));
+  max-height: min(430px, calc(100vh - 96px));
   background: #ffffff;
   border: 1px solid #d6e2e8;
   border-radius: 8px;
@@ -277,7 +277,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .date-selector-range-inputs {
@@ -314,14 +314,14 @@
   border-radius: 8px;
   background: #ffffff;
   padding: 4px;
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .date-selector-calendar-grid .rdrCalendarWrapper {
   width: 100%;
-  height: 100%;
+  height: auto;
   min-height: 0;
   font-size: 9px;
   color: #3e5964;
@@ -586,7 +586,7 @@
   cursor: pointer;
   min-width: 100px;
   max-width: 100px;
-  margin-left: 160%;
+  margin-left: 280%;
 }
 
 .view-more-wrap {
@@ -876,6 +876,47 @@
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.vaccination-modal-pagination {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vaccination-modal-pagination-btn {
+  border: 1px solid #c1cfd6;
+  border-radius: 4px;
+  width: 26px;
+  height: 22px;
+  background: #ffffff;
+  color: #777;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.vaccination-modal-pagination-btn-icon {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.vaccination-modal-pagination-btn:disabled {
+  opacity: 0.45;
+}
+
+.vaccination-modal-pagination-label {
+  color: #334f58;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 4px;
 }
 
 .vaccination-modal-footer {
