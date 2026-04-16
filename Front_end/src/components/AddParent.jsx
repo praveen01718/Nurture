@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { MdArrowBack } from "react-icons/md";
+import SidebarNav from "./SidebarNav";
 import "../components/AddParent.css";
 
 const COUNTRY_OPTIONS = [
@@ -305,21 +306,7 @@ function AddParent() {
     <div className="dashboard-wrapper">
       {toast.show && <div className={`custom-toast ${toast.type}`}>{toast.message}</div>}
 
-      <aside className="nurture-sidebar">
-        <div className="sidebar-header">
-          <img src={Logo} alt="Logo" className="main-logo" />
-          <button className="header-grid-icon"><FaThLarge /></button>
-        </div>
-        <nav className="sidebar-links">
-          <Link to="/Home/dashboard" className="nav-link"><FaHome /> <span>Dashboard</span></Link>
-          <Link to="/Home/parent" className="nav-link active"><FaUserFriends /> <span>Parents</span></Link>
-          <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
-          <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
-          <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
-          <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
-        </nav>
-      </aside>
+      <SidebarNav />
 
       <div className="content-area">
         <header className="top-nav">

@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
+import SidebarNav from "./SidebarNav";
 import "./AddChild.css";
 
 const COUNTRY_OPTIONS = [
@@ -198,21 +199,7 @@ function AddChild() {
         </div>
       )}
 
-      <aside className="nurture-sidebar">
-        <div className="sidebar-header">
-          <img src={Logo} alt="Logo" className="main-logo" />
-          <button className="header-grid-icon"><FaThLarge /></button>
-        </div>
-        <nav className="sidebar-links">
-          <Link to="/Home/Dashboard" className="nav-link"><FaHome /> <span>Dashboard</span></Link>
-          <Link to="/Home/Parent" className="nav-link"><FaUserFriends /> <span>Parents</span></Link>
-          <Link to="/Home/children" className="nav-link active"><FaChild /> <span>Children</span></Link>
-          <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
-          <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-          <Link to="/Home/vaccination" className="nav-link"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
-          <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
-        </nav>
-      </aside>
+      <SidebarNav />
 
       <div className="content-area">
         <header className="top-nav">

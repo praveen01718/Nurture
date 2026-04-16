@@ -1,21 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import Logo from "../assets/nurture-logo.png";
 import Profile from "../Images/user-img7.png";
 import {
-  FaThLarge,
-  FaUserFriends,
-  FaChild,
-  FaUserMd,
   FaCalendarAlt,
-  FaSignOutAlt,
   FaBell,
-  FaHome,
-  FaUser,
   FaSearch,
   FaPhoneAlt,
   FaEnvelope,
@@ -23,9 +15,9 @@ import {
   FaTimes
 } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
-import { RiCalendarScheduleFill } from "react-icons/ri";
 import { BiInjection, BiSolidErrorCircle } from "react-icons/bi"
 import { VACCINATION_SCHEDULE } from "../constants/vaccinationSchedule";
+import SidebarNav from "./SidebarNav";
 import "./VaccinationSchedule.css";
 
 const API_BASE = "http://localhost:5000";
@@ -215,9 +207,10 @@ const DEFAULT_THIS_MONTH_RANGE = buildQuickRange("thisMonth");
 
 function VaccinationSchedule() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const activeView = location.pathname.toLowerCase().endsWith("/missed") ? "missed" : "upcoming";
   const [children, setChildren] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeView, setActiveView] = useState("upcoming");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [selectedModalRow, setSelectedModalRow] = useState(null);
@@ -592,40 +585,7 @@ function VaccinationSchedule() {
 
   return (
     <div className="vaccination-schedule-page dashboard-wrapper">
-      <aside className="nurture-sidebar">
-        <div className="sidebar-header">
-          <img src={Logo} alt="Logo" className="main-logo" />
-          <button className="header-grid-icon"><FaThLarge /></button>
-        </div>
-
-        <nav className="sidebar-links">
-          <Link to="/Home/Dashboard" className="nav-link"><FaHome /> <span>Dashboard</span></Link>
-          <Link to="/Home/Parent" className="nav-link"><FaUserFriends /> <span>Parents</span></Link>
-          <Link to="/Home/children" className="nav-link"><FaChild /> <span>Children</span></Link>
-          <Link to="/Home/physician" className="nav-link"><FaUserMd /> <span>Physician</span></Link>
-          <Link to="/Home/appointments" className="nav-link"><FaCalendarAlt /> <span>Appointments</span></Link>
-
-          <div className="vaccination-menu-block">
-            <Link to="/Home/vaccination" className="nav-link active"><RiCalendarScheduleFill /> <span>Vaccination Schedule</span></Link>
-            <button
-              type="button"
-              className={`sub-menu-link ${activeView === "upcoming" ? "active" : ""}`}
-              onClick={() => setActiveView("upcoming")}
-            >
-              Upcoming Vaccination
-            </button>
-            <button
-              type="button"
-              className={`sub-menu-link ${activeView === "missed" ? "active" : ""}`}
-              onClick={() => setActiveView("missed")}
-            >
-              Missed Vaccination
-            </button>
-          </div>
-
-          <Link to="/logout" className="nav-link logout-link"><FaSignOutAlt /> <span>Logout</span></Link>
-        </nav>
-      </aside>
+      <SidebarNav />
 
       <div className="content-area">
         <header className="top-nav">

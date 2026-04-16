@@ -191,30 +191,29 @@
   top: calc(100% + 8px);
   right: 0;
   z-index: 50;
-  width: min(590px, calc(100vw - 20px));
-  max-height: min(390px, calc(100vh - 120px));
+  width: min(540px, calc(100vw - 20px));
+  max-height: min(355px, calc(100vh - 120px));
   background: #ffffff;
   border: 1px solid #d6e2e8;
   border-radius: 8px;
   box-shadow: 0 16px 30px rgba(11, 56, 73, 0.2);
   display: grid;
-  grid-template-columns: 122px minmax(0, 1fr);
+  grid-template-columns: 116px minmax(0, 1fr);
   overflow: hidden;
   align-items: stretch;
 }
 
 .date-selector-quick-panel {
-  padding: 9px 8px;
+  padding: 8px 8px 6px;
   border-right: 1px solid #e5ecef;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   min-width: 0;
   height: 100%;
 }
 
 .date-selector-quick-title {
-  margin: 0 0 2px;
+  margin: 0 0 1px;
   color: #6b7d85;
   font-size: 11px;
   font-weight: 700;
@@ -227,7 +226,7 @@
   color: #176c87;
   width: 100%;
   box-sizing: border-box;
-  height: 26px;
+  height: 24px;
   padding: 0 8px;
   text-align: left;
   font-size: 10px;
@@ -246,15 +245,15 @@
   width: 100%;
   margin-top: 0;
   display: flex;
-  gap: 6px;
-  padding-top: 4px;
+  gap: 4px;
+  padding-top: 2px;
 }
 
 .date-action-btn {
   flex: 1 1 0;
   border-radius: 6px;
   border: 1px solid #7e9ead;
-  height: 28px;
+  height: 26px;
   padding: 0 6px;
   font-size: 11px;
   font-weight: 700;
@@ -273,10 +272,10 @@
 }
 
 .date-selector-calendar-panel {
-  padding: 8px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
   overflow: hidden;
 }
@@ -284,7 +283,7 @@
 .date-selector-range-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 4px;
 }
 
 .date-selector-range-box {
@@ -293,8 +292,8 @@
   gap: 2px;
   border: 1px solid #d8e5ea;
   border-radius: 6px;
-  min-height: 30px;
-  padding: 5px 8px;
+  min-height: 28px;
+  padding: 4px 7px;
   background: #fbfeff;
 }
 
@@ -306,7 +305,7 @@
 }
 
 .date-selector-range-box strong {
-  font-size: 11px;
+  font-size: 10px;
   color: #1f4a59;
 }
 
@@ -314,7 +313,7 @@
   border: 1px solid #e1eaee;
   border-radius: 8px;
   background: #ffffff;
-  padding: 5px;
+  padding: 4px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -324,12 +323,12 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  font-size: 10px;
+  font-size: 9px;
   color: #3e5964;
 }
 
 .date-selector-calendar-grid .rdrMonths {
-  gap: 5px;
+  gap: 4px;
   justify-content: space-between;
 }
 
@@ -337,30 +336,58 @@
   flex: 1 1 0;
   width: auto;
   min-width: 0;
-  max-width: 225px;
-  padding: 0 2px 2px;
+  max-width: 198px;
+  padding: 0 1px 1px;
 }
 
 .date-selector-calendar-grid .rdrMonthAndYearWrapper {
-  height: 28px;
-  padding: 0 4px;
+  height: 24px;
+  padding: 0 2px;
+}
+
+.date-selector-calendar-grid .rdrMonthAndYearPickers select {
+  padding: 5px 18px 5px 6px;
+  background-position: right 5px center;
+  font-size: 10px;
+}
+
+.date-selector-calendar-grid .rdrMonthPicker,
+.date-selector-calendar-grid .rdrYearPicker {
+  margin: 0 2px;
+}
+
+.date-selector-calendar-grid .rdrNextPrevButton {
+  width: 20px;
+  height: 20px;
+  margin: 0 4px;
 }
 
 .date-selector-calendar-grid .rdrMonthName {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #617781;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .date-selector-calendar-grid .rdrWeekDay {
-  font-size: 9px;
+  font-size: 8px;
   color: #91a3ab;
   font-weight: 700;
+  line-height: 2.1em;
+}
+
+.date-selector-calendar-grid .rdrDay {
+  height: 2.5em;
+  line-height: 2.5em;
+}
+
+.date-selector-calendar-grid .rdrDayNumber {
+  top: 3px;
+  bottom: 3px;
 }
 
 .date-selector-calendar-grid .rdrDayNumber span {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   color: #546a73;
 }
@@ -370,14 +397,14 @@
 }
 
 .date-selector-calendar-grid .rdrDays {
-  min-height: 170px;
+  min-height: 145px;
 }
 
 .date-selector-calendar-grid .rdrStartEdge,
 .date-selector-calendar-grid .rdrEndEdge,
 .date-selector-calendar-grid .rdrInRange {
-  top: 3px;
-  bottom: 3px;
+  top: 2px;
+  bottom: 2px;
 }
 
 .date-selector-calendar-grid .rdrInRange {
@@ -401,13 +428,21 @@
 .date-selector-calendar-grid .rdrDayStartPreview,
 .date-selector-calendar-grid .rdrDayEndPreview,
 .date-selector-calendar-grid .rdrDayInPreview {
+  top: 2px;
+  bottom: 2px;
   border-color: #0eab97;
+}
+
+.date-selector-calendar-grid .rdrDayToday .rdrDayNumber span:after {
+  width: 12px;
+  height: 1.5px;
+  bottom: 3px;
 }
 
 @media (max-width: 900px) {
   .date-selector-popover {
     grid-template-columns: 1fr;
-    width: min(590px, calc(100vw - 12px));
+    width: min(540px, calc(100vw - 12px));
   }
 
   .date-selector-quick-panel {
