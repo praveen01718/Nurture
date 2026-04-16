@@ -475,12 +475,7 @@ function VaccinationSchedule() {
         }
 
         const childInfoText = [
-          row.childName,
-          row.childGender,
-          row.childAgeText,
-          row.parentName,
-          row.parentPhone,
-          row.parentEmail
+          row.childName
         ]
           .join(" ")
           .toLowerCase();

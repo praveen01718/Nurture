@@ -213,17 +213,17 @@
 }
 
 .date-selector-quick-title {
-  margin: 0 0 1px;
+  margin: 0 0 3px;
   color: #6b7d85;
   font-size: 11px;
   font-weight: 700;
 }
 
 .quick-range-btn {
-  border: 1px solid #77a9bd;
+  border: 1px solid var(--sidebar-teal);
   border-radius: 6px;
-  background: #f7fbfd;
-  color: #176c87;
+  background: white;
+  color: var(--sidebar-teal);
   width: 100%;
   box-sizing: border-box;
   height: 24px;
@@ -231,19 +231,18 @@
   text-align: left;
   font-size: 10px;
   font-weight: 600;
-  line-height: 1;
   cursor: pointer;
-}
+  margin: 3px 0 3px 0;}
 
 .quick-range-btn.active {
-  background: #006e86;
-  color: #ffffff;
-  border-color: #00596d;
+  background: var(--sidebar-teal);
+  color: white;
+  border-color: var(--sidebar-teal);
 }
 
 .date-selector-actions {
   width: 100%;
-  margin-top: 0;
+  margin-top: 20px;
   display: flex;
   gap: 4px;
   padding-top: 2px;
@@ -252,7 +251,7 @@
 .date-action-btn {
   flex: 1 1 0;
   border-radius: 6px;
-  border: 1px solid #7e9ead;
+  border: 1px solid var(--sidebar-teal);
   height: 26px;
   padding: 0 6px;
   font-size: 11px;
@@ -261,14 +260,14 @@
 }
 
 .date-action-btn.cancel {
-  background: #f2f6f8;
-  color: #5d717b;
+  background: white;
+  color: var(--sidebar-teal);
 }
 
 .date-action-btn.apply {
-  border-color: #005f76;
-  background: #006e86;
-  color: #ffffff;
+  border-color: var(--sidebar-teal);
+  background: var(--sidebar-teal);
+  color: white;
 }
 
 .date-selector-calendar-panel {
@@ -283,18 +282,22 @@
 .date-selector-range-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: #f7f9fa;
+  border: 1px solid #d8e5ea;
 }
 
 .date-selector-range-box {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border: 1px solid #d8e5ea;
-  border-radius: 6px;
+  border: 1px solid var(--sidebar-teal);
+  border-radius: 4px;
   min-height: 28px;
-  padding: 4px 7px;
-  background: #fbfeff;
+  padding: 5px 10px;
+  text-align: center;
+  background-color: white;
 }
 
 .date-selector-range-box span {
@@ -337,7 +340,7 @@
   width: auto;
   min-width: 0;
   max-width: 198px;
-  padding: 0 1px 1px;
+  padding: 0 1px 0;
 }
 
 .date-selector-calendar-grid .rdrMonthAndYearWrapper {
@@ -373,17 +376,14 @@
   font-size: 8px;
   color: #91a3ab;
   font-weight: 700;
-  line-height: 2.1em;
+  line-height: 2.5em;
+  margin-bottom: 3px;
 }
 
 .date-selector-calendar-grid .rdrDay {
-  height: 2.5em;
-  line-height: 2.5em;
-}
-
-.date-selector-calendar-grid .rdrDayNumber {
-  top: 3px;
-  bottom: 3px;
+  height: 2.50em;
+  line-height: 2.50em;
+  margin-top: -3px;
 }
 
 .date-selector-calendar-grid .rdrDayNumber span {
@@ -397,14 +397,14 @@
 }
 
 .date-selector-calendar-grid .rdrDays {
-  min-height: 145px;
+  min-height: 100px;
 }
 
 .date-selector-calendar-grid .rdrStartEdge,
 .date-selector-calendar-grid .rdrEndEdge,
 .date-selector-calendar-grid .rdrInRange {
-  top: 2px;
-  bottom: 2px;
+  top: 0;
+  bottom: 0;
 }
 
 .date-selector-calendar-grid .rdrInRange {
@@ -428,8 +428,6 @@
 .date-selector-calendar-grid .rdrDayStartPreview,
 .date-selector-calendar-grid .rdrDayEndPreview,
 .date-selector-calendar-grid .rdrDayInPreview {
-  top: 2px;
-  bottom: 2px;
   border-color: #0eab97;
 }
 
